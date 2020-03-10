@@ -5,6 +5,8 @@ import { context, GitHub } from "@actions/github";
 import sizeLimit from "size-limit";
 // @ts-ignore
 import filePlugin from "@size-limit/file";
+// @ts-ignore
+import timePlugin from "@size-limit/time";
 
 async function run() {
   try {
@@ -17,7 +19,7 @@ async function run() {
     }
     console.log(process.cwd());
     const x = join(process.cwd(), "dist/index.js");
-    const data = await sizeLimit([filePlugin], [x]);
+    const data = await sizeLimit([filePlugin, timePlugin], [x]);
     console.log(data);
 
     const number = context.payload.pull_request.number;
