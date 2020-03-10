@@ -1,0 +1,13 @@
+name: 'size-limit-action'
+description: 'size-limit action'
+author: 'Andres Alvarez <a.alvarez.sor@gmail.com>'
+branding:
+  icon: 'activity'
+  color: 'green'
+inputs:
+  access_token:
+    required: true
+    description: 'a github access token'
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
