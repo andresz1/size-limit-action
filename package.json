@@ -14,7 +14,9 @@
   },
   "dependencies": {
     "@actions/core": "^1.2.3",
-    "@actions/github": "^2.1.1"
+    "@actions/github": "^2.1.1",
+    "@size-limit/file": "^4.3.1",
+    "size-limit": "^4.3.1"
   },
   "devDependencies": {
     "@types/jest": "^24.0.23",
