@@ -1,5 +1,9 @@
 import { getInput, setFailed } from "@actions/core";
 import { context, GitHub } from "@actions/github";
+// @ts-ignore
+import sizeLimit from "size-limit";
+// @ts-ignore
+import filePlugin from "@size-limit/file";
 
 async function run() {
   try {
@@ -10,6 +14,9 @@ async function run() {
       setFailed("No pull request found.");
       return;
     }
+
+    const data = await sizeLimit([filePlugin], ["./dist"]);
+    console.log(data);
 
     const number = context.payload.pull_request.number;
     const octokit = new GitHub(token);
