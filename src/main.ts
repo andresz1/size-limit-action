@@ -1,4 +1,4 @@
-import * as path from "path";
+import { join } from "path";
 import { getInput, setFailed } from "@actions/core";
 import { context, GitHub } from "@actions/github";
 // @ts-ignore
@@ -16,7 +16,7 @@ async function run() {
       return;
     }
     console.log(process.cwd());
-    const x = path.join(process.cwd(), "dist/index.js");
+    const x = join(process.cwd(), "dist/index.js");
     const data = await sizeLimit([filePlugin], [x]);
     console.log(data);
 

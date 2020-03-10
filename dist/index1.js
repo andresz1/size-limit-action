@@ -2147,7 +2147,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const path_1 = __webpack_require__(622);
 const core_1 = __webpack_require__(470);
 const github_1 = __webpack_require__(469);
 // @ts-ignore
@@ -2163,9 +2162,7 @@ function run() {
                 core_1.setFailed("No pull request found.");
                 return;
             }
-            console.log(process.cwd());
-            const x = __webpack_require__.ab + "index1.js";
-            const data = yield size_limit_1.default([file_1.default], [x]);
+            const data = yield size_limit_1.default([file_1.default], ["./dist"]);
             console.log(data);
             const number = github_1.context.payload.pull_request.number;
             const octokit = new github_1.GitHub(token);
