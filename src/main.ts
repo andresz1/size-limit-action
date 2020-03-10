@@ -1,3 +1,4 @@
+import * as path from "path";
 import { getInput, setFailed } from "@actions/core";
 import { context, GitHub } from "@actions/github";
 // @ts-ignore
@@ -14,8 +15,9 @@ async function run() {
       setFailed("No pull request found.");
       return;
     }
-
-    const data = await sizeLimit([filePlugin], ["./dist/index.js"]);
+    console.log(process.cwd());
+    const x = path.join(process.cwd(), "dist/index.js");
+    const data = await sizeLimit([filePlugin], [x]);
     console.log(data);
 
     const number = context.payload.pull_request.number;
