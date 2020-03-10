@@ -15,7 +15,7 @@ async function run() {
       return;
     }
 
-    const data = await sizeLimit([filePlugin], ["./dist"]);
+    const data = await sizeLimit([filePlugin], ["./dist/index.js"]);
     console.log(data);
 
     const number = context.payload.pull_request.number;
