@@ -10,17 +10,21 @@
     "format": "prettier --write **/*.ts",
     "lint": "eslint src/**/*.ts",
     "pack": "ncc build src/main.ts -o dist",
-    "test": "jest"
+    "test": "jest",
+    "size": "npm run pack && size-limit"
   },
+  "size-limit": [{
+    "path": "dist/index.js"
+  }],
   "dependencies": {
     "@actions/core": "^1.2.3",
     "@actions/exec": "^1.0.3",
-    "@actions/github": "^2.1.1",
-    "@size-limit/file": "^4.3.1",
-    "@size-limit/time": "^4.3.1",
-    "size-limit": "^4.3.1"
+    "@actions/github": "^2.1.1"
   },
   "devDependencies": {
+    "@size-limit/file": "^4.3.1",
+    "@size-limit/time": "^4.3.1",
+    "size-limit": "^4.3.1",
     "@types/jest": "^24.0.23",
     "@types/node": "^12.7.12",
     "@typescript-eslint/parser": "^2.8.0",

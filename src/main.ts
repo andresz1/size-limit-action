@@ -1,12 +1,13 @@
-import { join } from "path";
 import { getInput, setFailed } from "@actions/core";
 import { context, GitHub } from "@actions/github";
-// @ts-ignore
-import sizeLimit from "size-limit";
-// @ts-ignore
-import filePlugin from "@size-limit/file";
-// @ts-ignore
-import timePlugin from "@size-limit/time";
+import { exec } from "@actions/exec";
+
+export async function test(): Promise<void> {
+  await exec(`npm install`);
+  const x = await exec(`npm run size`);
+
+  console.log(x);
+}
 
 async function run() {
   try {
@@ -17,10 +18,8 @@ async function run() {
       setFailed("No pull request found.");
       return;
     }
-    console.log(process.cwd());
-    const x = join(process.cwd(), "dist/index.js");
-    const data = await sizeLimit([filePlugin, timePlugin], [x]);
-    console.log(data);
+
+    await test();
 
     const number = context.payload.pull_request.number;
     const octokit = new GitHub(token);
