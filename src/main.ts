@@ -8,6 +8,7 @@ export async function test(): Promise<string> {
   await exec(`npm install`);
   await exec(`npm run build`);
   await exec(`npm run size`, [], {
+    windowsVerbatimArguments: true,
     listeners: {
       stdout: (data: Buffer) => {
         output += data.toString();

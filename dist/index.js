@@ -1763,6 +1763,7 @@ function test() {
         yield exec_1.exec(`npm install`);
         yield exec_1.exec(`npm run build`);
         yield exec_1.exec(`npm run size`, [], {
+            windowsVerbatimArguments: true,
             listeners: {
                 stdout: (data) => {
                     output += data.toString();
