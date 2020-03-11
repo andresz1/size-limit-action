@@ -2,7 +2,7 @@ import { getInput, setFailed } from "@actions/core";
 import { context, GitHub } from "@actions/github";
 import { exec } from "@actions/exec";
 
-export async function test(): Promise<void> {
+export async function test(): Promise<string> {
   let output = "";
 
   await exec(`npm install`);
@@ -15,12 +15,11 @@ export async function test(): Promise<void> {
     }
   });
 
-  console.log('XDDD', output);
+  return output.trim();
 }
 
 async function run() {
   try {
-    const message = "message";
     const token = getInput("github_token");
 
     if (context.payload.pull_request == null) {
@@ -28,7 +27,7 @@ async function run() {
       return;
     }
 
-    await test();
+    const message = await test();
 
     const number = context.payload.pull_request.number;
     const octokit = new GitHub(token);

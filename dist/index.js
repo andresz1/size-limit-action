@@ -1769,20 +1769,19 @@ function test() {
                 }
             }
         });
-        console.log('XDDD', output);
+        return output.trim();
     });
 }
 exports.test = test;
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const message = "message";
             const token = core_1.getInput("github_token");
             if (github_1.context.payload.pull_request == null) {
                 core_1.setFailed("No pull request found.");
                 return;
             }
-            yield test();
+            const message = yield test();
             const number = github_1.context.payload.pull_request.number;
             const octokit = new github_1.GitHub(token);
             octokit.issues.createComment(Object.assign(Object.assign({}, github_1.context.repo), { 
