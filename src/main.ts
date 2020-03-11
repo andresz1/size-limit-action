@@ -3,10 +3,19 @@ import { context, GitHub } from "@actions/github";
 import { exec } from "@actions/exec";
 
 export async function test(): Promise<void> {
-  await exec(`npm install`);
-  const x = await exec(`npm run size`);
+  let output = "";
 
-  console.log(x);
+  await exec(`npm install`);
+  await exec(`npm run build`);
+  await exec(`npm run size`, [], {
+    listeners: {
+      stdout: (data: Buffer) => {
+        output += data.toString();
+      }
+    }
+  });
+
+  console.log('XDDD', output);
 }
 
 async function run() {

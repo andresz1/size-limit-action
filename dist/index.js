@@ -1759,9 +1759,17 @@ const github_1 = __webpack_require__(469);
 const exec_1 = __webpack_require__(986);
 function test() {
     return __awaiter(this, void 0, void 0, function* () {
+        let output = "";
         yield exec_1.exec(`npm install`);
-        const x = yield exec_1.exec(`npm run size`);
-        console.log(x);
+        yield exec_1.exec(`npm run build`);
+        yield exec_1.exec(`npm run size`, [], {
+            listeners: {
+                stdout: (data) => {
+                    output += data.toString();
+                }
+            }
+        });
+        console.log('XDDD', output);
     });
 }
 exports.test = test;

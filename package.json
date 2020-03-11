@@ -6,12 +6,11 @@
   "main": "lib/main.js",
   "license": "ISC",
   "scripts": {
-    "build": "tsc",
     "format": "prettier --write **/*.ts",
     "lint": "eslint src/**/*.ts",
-    "pack": "ncc build src/main.ts -o dist",
     "test": "jest",
-    "size": "npm run pack && size-limit"
+    "build": "ncc build src/main.ts -o dist",
+    "size": "size-limit"
   },
   "size-limit": [{
     "path": "dist/index.js"
