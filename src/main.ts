@@ -1,8 +1,40 @@
 import { getInput, setFailed } from "@actions/core";
 import { context, GitHub } from "@actions/github";
 import { exec } from "@actions/exec";
+// @ts-ignore
+import table from "markdown-table";
 
-export async function test(): Promise<string> {
+const SIZE_LIMIT_RESULTS = {
+  size: "Size",
+  loading: "Loading Time",
+  running: "Running time",
+  total: "Total time"
+};
+
+interface IResult {
+  size: string;
+  loading: string;
+  running: string;
+  total: string;
+}
+
+const getResult = (values: Array<string>, value: string): string => {
+  const index = values.indexOf(value);
+  return values[index + 1];
+};
+
+const getResults = (data: string) => {
+  const values = data.replace(/ +/g, " ").split(" ");
+
+  return {
+    size: getResult(values, SIZE_LIMIT_RESULTS.size),
+    loading: getResult(values, SIZE_LIMIT_RESULTS.loading),
+    running: getResult(values, SIZE_LIMIT_RESULTS.running),
+    total: getResult(values, SIZE_LIMIT_RESULTS.total)
+  };
+};
+
+export async function test(): Promise<IResult> {
   let output = "";
 
   await exec(`npm install`);
@@ -16,7 +48,7 @@ export async function test(): Promise<string> {
     }
   });
 
-  return output.trim();
+  return getResults(output);
 }
 
 async function run() {
@@ -28,7 +60,13 @@ async function run() {
       return;
     }
 
-    const message = await test();
+    const result = await test();
+    const body = table([
+      ["Size", result.size],
+      ["Loading time", result.loading],
+      ["Running time", result.running],
+      ["Total time", result.total]
+    ]);
 
     const number = context.payload.pull_request.number;
     const octokit = new GitHub(token);
@@ -37,7 +75,7 @@ async function run() {
       ...context.repo,
       // eslint-disable-next-line camelcase
       issue_number: number,
-      body: message
+      body
     });
   } catch (error) {
     setFailed(error.message);
