@@ -19,7 +19,7 @@ interface IResult {
 }
 
 const getResult = (values: Array<string>, value: string): string => {
-  const index = values.indexOf(value);
+  const index = values.indexOf(`${value}:`);
   return values[index + 1];
 };
 
@@ -67,6 +67,8 @@ async function run() {
       ["Running time", result.running],
       ["Total time", result.total]
     ]);
+
+    console.log(result);
 
     const number = context.payload.pull_request.number;
     const octokit = new GitHub(token);

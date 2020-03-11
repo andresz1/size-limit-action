@@ -1847,7 +1847,7 @@ const SIZE_LIMIT_RESULTS = {
     total: "Total time"
 };
 const getResult = (values, value) => {
-    const index = values.indexOf(value);
+    const index = values.indexOf(`${value}:`);
     return values[index + 1];
 };
 const getResults = (data) => {
@@ -1891,6 +1891,7 @@ function run() {
                 ["Running time", result.running],
                 ["Total time", result.total]
             ]);
+            console.log(result);
             const number = github_1.context.payload.pull_request.number;
             const octokit = new github_1.GitHub(token);
             octokit.issues.createComment(Object.assign(Object.assign({}, github_1.context.repo), { 
