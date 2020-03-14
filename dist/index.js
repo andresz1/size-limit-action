@@ -2061,7 +2061,7 @@ const formatChange = (base = 0, current = 0) => {
     if (value === 0) {
         return `${formatted}%`;
     }
-    return `${formatted}% 🔽`;
+    return `-${formatted}% 🔽`;
 };
 const getTable = (baseResults, currentResults) => {
     const keys = [
@@ -2079,7 +2079,16 @@ const getTable = (baseResults, currentResults) => {
             formatTime(total)
         ];
     });
-    return markdown_table_1.default([["Path", "Size", "Loading", "Running", "Total"], ...values]);
+    return markdown_table_1.default([
+        [
+            "Path",
+            "Size",
+            "Loading time (3g)",
+            "Running time (snapdragon)",
+            "Total time"
+        ],
+        ...values
+    ]);
 };
 function run() {
     return __awaiter(this, void 0, void 0, function* () {

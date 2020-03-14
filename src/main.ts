@@ -82,7 +82,7 @@ const formatChange = (base: number = 0, current: number = 0) => {
     return `${formatted}%`;
   }
 
-  return `${formatted}% 🔽`;
+  return `-${formatted}% 🔽`;
 };
 
 const getTable = (baseResults: IResults, currentResults: IResults): string => {
@@ -110,7 +110,16 @@ const getTable = (baseResults: IResults, currentResults: IResults): string => {
     ];
   });
 
-  return table([["Path", "Size", "Loading", "Running", "Total"], ...values]);
+  return table([
+    [
+      "Path",
+      "Size",
+      "Loading time (3g)",
+      "Running time (snapdragon)",
+      "Total time"
+    ],
+    ...values
+  ]);
 };
 
 async function run() {
