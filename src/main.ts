@@ -82,7 +82,7 @@ const formatChange = (base: number = 0, current: number = 0) => {
     return `${formatted}%`;
   }
 
-  return `-${formatted}% 🔽`;
+  return `${formatted}% 🔽`;
 };
 
 const getTable = (baseResults: IResults, currentResults: IResults): string => {

@@ -14,7 +14,8 @@
   },
   "size-limit": [
     {
-      "path": "dist/index.js"
+      "path": "dist/index.js",
+      "limit": "500 ms"
     }
   ],
   "dependencies": {

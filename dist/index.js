@@ -2061,7 +2061,7 @@ const formatChange = (base = 0, current = 0) => {
     if (value === 0) {
         return `${formatted}%`;
     }
-    return `-${formatted}% 🔽`;
+    return `${formatted}% 🔽`;
 };
 const getTable = (baseResults, currentResults) => {
     const keys = [
