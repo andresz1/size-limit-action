@@ -150,6 +150,11 @@ async function run() {
       event: status > 0 ? "REQUEST_CHANGES" : "COMMENT",
       body: [
         "## [size-limit](https://github.com/ai/size-limit) report",
+        `Status: ${
+          status > 0
+            ? "Total time limit has exceeded 🔴"
+            : "Total time limit has not exceeded ✅"
+        }`,
         getTable(base, current)
       ].join("\r\n")
     });
