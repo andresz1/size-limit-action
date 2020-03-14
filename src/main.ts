@@ -6,7 +6,7 @@ import table from "markdown-table";
 
 const SIZE_LIMIT_RESULTS = {
   size: "Size",
-  loading: "Loading Time",
+  loading: "Loading time",
   running: "Running time",
   total: "Total time"
 };
@@ -34,12 +34,12 @@ const getResults = (data: string) => {
   };
 };
 
-export async function test(): Promise<IResult> {
+export async function test(): Promise<string> {
   let output = "";
 
   await exec(`npm install`);
   await exec(`npm run build`);
-  await exec(`npm run size`, [], {
+  await exec(`npm run size --json`, [], {
     windowsVerbatimArguments: true,
     listeners: {
       stdout: (data: Buffer) => {
@@ -48,7 +48,7 @@ export async function test(): Promise<IResult> {
     }
   });
 
-  return getResults(output);
+  return output;
 }
 
 async function run() {
@@ -61,14 +61,6 @@ async function run() {
     }
 
     const result = await test();
-    const body = table([
-      ["Size", result.size],
-      ["Loading time", result.loading],
-      ["Running time", result.running],
-      ["Total time", result.total]
-    ]);
-
-    console.log(result);
 
     const number = context.payload.pull_request.number;
     const octokit = new GitHub(token);
@@ -77,7 +69,7 @@ async function run() {
       ...context.repo,
       // eslint-disable-next-line camelcase
       issue_number: number,
-      body
+      body: result
     });
   } catch (error) {
     setFailed(error.message);
