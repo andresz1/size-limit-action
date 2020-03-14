@@ -1840,12 +1840,6 @@ const github_1 = __webpack_require__(469);
 const exec_1 = __webpack_require__(986);
 // @ts-ignore
 const markdown_table_1 = __importDefault(__webpack_require__(366));
-const SIZE_LIMIT_RESULTS = {
-    size: "Size",
-    loading: "Loading time",
-    running: "Running time",
-    total: "Total time"
-};
 const parseResult = (str) => {
     const results = JSON.parse(str);
     return results.map((result) => {
@@ -1874,6 +1868,12 @@ function test() {
     });
 }
 exports.test = test;
+const getTable = (results) => {
+    const values = results.map((result) => {
+        return [result.name, result.size, result.running, result.loading];
+    });
+    return markdown_table_1.default([["Name", "Size", "Loading time", "Running time"], ...values]);
+};
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -1882,13 +1882,8 @@ function run() {
                 core_1.setFailed("No pull request found.");
                 return;
             }
-            const [result] = yield test();
-            const body = markdown_table_1.default([
-                ["Name", result.name],
-                ["Size", result.size],
-                ["Loading time", result.loading],
-                ["Running time", result.running]
-            ]);
+            const results = yield test();
+            const body = getTable(results);
             const number = github_1.context.payload.pull_request.number;
             const octokit = new github_1.GitHub(token);
             octokit.issues.createComment(Object.assign(Object.assign({}, github_1.context.repo), { 

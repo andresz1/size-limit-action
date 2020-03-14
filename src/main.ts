@@ -4,13 +4,6 @@ import { exec } from "@actions/exec";
 // @ts-ignore
 import table from "markdown-table";
 
-const SIZE_LIMIT_RESULTS = {
-  size: "Size",
-  loading: "Loading time",
-  running: "Running time",
-  total: "Total time"
-};
-
 interface IResult {
   name: string;
   size: number;
@@ -48,6 +41,14 @@ export async function test(): Promise<Array<IResult>> {
   return parseResult(output);
 }
 
+const getTable = (results: Array<IResult>): string => {
+  const values = results.map((result: IResult) => {
+    return [result.name, result.size, result.running, result.loading];
+  });
+
+  return table([["Name", "Size", "Loading time", "Running time"], ...values]);
+};
+
 async function run() {
   try {
     const token = getInput("github_token");
@@ -57,13 +58,8 @@ async function run() {
       return;
     }
 
-    const [result] = await test();
-    const body = table([
-      ["Name", result.name],
-      ["Size", result.size],
-      ["Loading time", result.loading],
-      ["Running time", result.running]
-    ]);
+    const results = await test();
+    const body = getTable(results);
 
     const number = context.payload.pull_request.number;
     const octokit = new GitHub(token);
