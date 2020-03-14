@@ -109,10 +109,7 @@ const getTable = (baseResults: IResults, currentResults: IResults): string => {
     ];
   });
 
-  return table([
-    ["Path", "Size", "Loading (3g)", "Running (Snapdragon)", "Total"],
-    ...values
-  ]);
+  return table([["Path", "Size", "Loading (3g)", "Running (sd)"], ...values]);
 };
 
 async function run() {
@@ -134,7 +131,7 @@ async function run() {
       ...context.repo,
       // eslint-disable-next-line camelcase
       issue_number: number,
-      body: ["### Base", getTable(base, current)].join("\r\n")
+      body: ["## Size report", getTable(base, current)].join("\r\n")
     });
   } catch (error) {
     setFailed(error.message);

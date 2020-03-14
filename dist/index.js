@@ -2078,10 +2078,7 @@ const getTable = (baseResults, currentResults) => {
             0
         ];
     });
-    return markdown_table_1.default([
-        ["Path", "Size", "Loading (3g)", "Running (Snapdragon)", "Total"],
-        ...values
-    ]);
+    return markdown_table_1.default([["Path", "Size", "Loading (3g)", "Running (sd)"], ...values]);
 };
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -2097,7 +2094,7 @@ function run() {
             const octokit = new github_1.GitHub(token);
             octokit.issues.createComment(Object.assign(Object.assign({}, github_1.context.repo), { 
                 // eslint-disable-next-line camelcase
-                issue_number: number, body: ["### Base", getTable(base, current)].join("\r\n") }));
+                issue_number: number, body: ["## Size report", getTable(base, current)].join("\r\n") }));
         }
         catch (error) {
             core_1.setFailed(error.message);
