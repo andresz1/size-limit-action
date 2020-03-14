@@ -1885,8 +1885,8 @@ function run() {
                 core_1.setFailed("No pull request found.");
                 return;
             }
+            const current = yield getResults();
             const base = yield getResults(process.env.GITHUB_BASE_REF);
-            const current = yield getResults(process.env.GITHUB_BASE_REF);
             const number = github_1.context.payload.pull_request.number;
             const octokit = new github_1.GitHub(token);
             octokit.issues.createComment(Object.assign(Object.assign({}, github_1.context.repo), { 

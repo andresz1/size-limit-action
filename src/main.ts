@@ -62,8 +62,8 @@ async function run() {
       return;
     }
 
+    const current = await getResults();
     const base = await getResults(process.env.GITHUB_BASE_REF);
-    const current = await getResults(process.env.GITHUB_BASE_REF);
 
     const number = context.payload.pull_request.number;
     const octokit = new GitHub(token);
