@@ -2039,7 +2039,7 @@ const getResults = (branch) => __awaiter(void 0, void 0, void 0, function* () {
     }
     yield exec_1.exec(`npm install`);
     yield exec_1.exec(`npm run build`);
-    const x = yield exec_1.exec(`npx size-limit --json`, [], {
+    const status = yield exec_1.exec(`npx size-limit --json`, [], {
         windowsVerbatimArguments: true,
         ignoreReturnCode: true,
         listeners: {
@@ -2048,8 +2048,10 @@ const getResults = (branch) => __awaiter(void 0, void 0, void 0, function* () {
             }
         }
     });
-    console.log("RICOOO", x);
-    return parseResults(output);
+    return {
+        status,
+        results: parseResults(output)
+    };
 });
 const formatChange = (base = 0, current = 0) => {
     if (current === 0) {
@@ -2100,13 +2102,13 @@ function run() {
                 core_1.setFailed("No pull request found.");
                 return;
             }
-            const current = yield getResults();
-            const base = yield getResults(process.env.GITHUB_BASE_REF);
+            const { status, results: current } = yield getResults();
+            const { results: base } = yield getResults(process.env.GITHUB_BASE_REF);
             const number = github_1.context.payload.pull_request.number;
             const octokit = new github_1.GitHub(token);
-            octokit.issues.createComment(Object.assign(Object.assign({}, github_1.context.repo), { 
+            octokit.pulls.createReview(Object.assign(Object.assign({}, github_1.context.repo), { 
                 // eslint-disable-next-line camelcase
-                issue_number: number, body: [
+                pull_number: number, event: status > 0 ? "REQUEST_CHANGES" : "COMMENT", body: [
                     "## [size-limit](https://github.com/ai/size-limit) report",
                     getTable(base, current)
                 ].join("\r\n") }));

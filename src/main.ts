@@ -45,7 +45,9 @@ const parseResults = (str: string): IResults => {
   }, {});
 };
 
-const getResults = async (branch?: string): Promise<IResults> => {
+const getResults = async (
+  branch?: string
+): Promise<{ status: number; results: IResults }> => {
   let output = "";
 
   if (branch) {
@@ -54,7 +56,7 @@ const getResults = async (branch?: string): Promise<IResults> => {
 
   await exec(`npm install`);
   await exec(`npm run build`);
-  const x = await exec(`npx size-limit --json`, [], {
+  const status = await exec(`npx size-limit --json`, [], {
     windowsVerbatimArguments: true,
     ignoreReturnCode: true,
     listeners: {
@@ -64,9 +66,10 @@ const getResults = async (branch?: string): Promise<IResults> => {
     }
   });
 
-  console.log("RICOOO", x);
-
-  return parseResults(output);
+  return {
+    status,
+    results: parseResults(output)
+  };
 };
 
 const formatChange = (base: number = 0, current: number = 0) => {
@@ -134,16 +137,17 @@ async function run() {
       return;
     }
 
-    const current = await getResults();
-    const base = await getResults(process.env.GITHUB_BASE_REF);
+    const { status, results: current } = await getResults();
+    const { results: base } = await getResults(process.env.GITHUB_BASE_REF);
 
     const number = context.payload.pull_request.number;
     const octokit = new GitHub(token);
 
-    octokit.issues.createComment({
+    octokit.pulls.createReview({
       ...context.repo,
       // eslint-disable-next-line camelcase
-      issue_number: number,
+      pull_number: number,
+      event: status > 0 ? "REQUEST_CHANGES" : "COMMENT",
       body: [
         "## [size-limit](https://github.com/ai/size-limit) report",
         getTable(base, current)
