@@ -2039,14 +2039,16 @@ const getResults = (branch) => __awaiter(void 0, void 0, void 0, function* () {
     }
     yield exec_1.exec(`npm install`);
     yield exec_1.exec(`npm run build`);
-    yield exec_1.exec(`npx size-limit --json`, [], {
+    const x = yield exec_1.exec(`npx size-limit --json`, [], {
         windowsVerbatimArguments: true,
+        ignoreReturnCode: true,
         listeners: {
             stdout: (data) => {
                 output += data.toString();
             }
         }
     });
+    console.log("RICOOO", x);
     return parseResults(output);
 });
 const formatChange = (base = 0, current = 0) => {

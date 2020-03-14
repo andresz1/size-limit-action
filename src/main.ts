@@ -54,14 +54,17 @@ const getResults = async (branch?: string): Promise<IResults> => {
 
   await exec(`npm install`);
   await exec(`npm run build`);
-  await exec(`npx size-limit --json`, [], {
+  const x = await exec(`npx size-limit --json`, [], {
     windowsVerbatimArguments: true,
+    ignoreReturnCode: true,
     listeners: {
       stdout: (data: Buffer) => {
         output += data.toString();
       }
     }
   });
+
+  console.log("RICOOO", x);
 
   return parseResults(output);
 };
