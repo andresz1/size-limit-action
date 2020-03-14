@@ -2054,14 +2054,25 @@ function getResults(branch) {
 exports.getResults = getResults;
 const getTable = (results) => {
     const values = results.map((result) => {
+        const total = result.loading + result.running;
         return [
             result.name,
             formatBytes(result.size),
+            formatTime(result.loading),
             formatTime(result.running),
-            formatTime(result.loading)
+            formatTime(total)
         ];
     });
-    return markdown_table_1.default([["Name", "Size", "Loading time", "Running time"], ...values]);
+    return markdown_table_1.default([
+        [
+            "Path",
+            "Size",
+            "Loading time (3g)",
+            "Running time (Snapdragon)",
+            "Total time"
+        ],
+        ...values
+    ]);
 };
 function run() {
     return __awaiter(this, void 0, void 0, function* () {

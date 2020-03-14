@@ -61,15 +61,27 @@ export async function getResults(branch?: string): Promise<Array<IResult>> {
 
 const getTable = (results: Array<IResult>): string => {
   const values = results.map((result: IResult) => {
+    const total = result.loading + result.running;
+
     return [
       result.name,
       formatBytes(result.size),
+      formatTime(result.loading),
       formatTime(result.running),
-      formatTime(result.loading)
+      formatTime(total)
     ];
   });
 
-  return table([["Name", "Size", "Loading time", "Running time"], ...values]);
+  return table([
+    [
+      "Path",
+      "Size",
+      "Loading time (3g)",
+      "Running time (Snapdragon)",
+      "Total time"
+    ],
+    ...values
+  ]);
 };
 
 async function run() {
