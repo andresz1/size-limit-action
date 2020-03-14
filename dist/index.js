@@ -1855,7 +1855,7 @@ function getResults(branch) {
     return __awaiter(this, void 0, void 0, function* () {
         let output = "";
         if (branch) {
-            yield exec_1.exec(`git checkout refs/remotes/origin/branch/${branch}`);
+            yield exec_1.exec(`git checkout ${branch}`);
         }
         yield exec_1.exec(`npm install`);
         yield exec_1.exec(`npm run build`);

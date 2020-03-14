@@ -28,7 +28,7 @@ export async function getResults(branch?: string): Promise<Array<IResult>> {
   let output = "";
 
   if (branch) {
-    await exec(`git checkout refs/remotes/origin/branch/${branch}`);
+    await exec(`git checkout ${branch}`);
   }
 
   await exec(`npm install`);
