@@ -2012,17 +2012,6 @@ const exec_1 = __webpack_require__(986);
 const markdown_table_1 = __importDefault(__webpack_require__(366));
 // @ts-ignore
 const bytes_1 = __importDefault(__webpack_require__(63));
-const parseResult = (str) => {
-    const results = JSON.parse(str);
-    return results.map((result) => {
-        return {
-            name: result.name,
-            size: +result.size,
-            running: +result.running,
-            loading: +result.loading
-        };
-    });
-};
 const formatBytes = (size) => {
     return bytes_1.default.format(size, { unitSeparator: " " });
 };
@@ -2032,45 +2021,65 @@ const formatTime = (seconds) => {
     }
     return `${Math.ceil(seconds * 1000)} ms`;
 };
-function getResults(branch) {
-    return __awaiter(this, void 0, void 0, function* () {
-        let output = "";
-        if (branch) {
-            yield exec_1.exec(`git checkout -f ${branch}`);
-        }
-        yield exec_1.exec(`npm install`);
-        yield exec_1.exec(`npm run build`);
-        yield exec_1.exec(`npx size-limit --json`, [], {
-            windowsVerbatimArguments: true,
-            listeners: {
-                stdout: (data) => {
-                    output += data.toString();
-                }
+const parseResults = (str) => {
+    const results = JSON.parse(str);
+    return results.reduce((current, result) => {
+        return Object.assign(Object.assign({}, current), { [result.name]: {
+                name: result.name,
+                size: +result.size,
+                running: +result.running,
+                loading: +result.loading
+            } });
+    }, {});
+};
+const getResults = (branch) => __awaiter(void 0, void 0, void 0, function* () {
+    let output = "";
+    if (branch) {
+        yield exec_1.exec(`git checkout -f ${branch}`);
+    }
+    yield exec_1.exec(`npm install`);
+    yield exec_1.exec(`npm run build`);
+    yield exec_1.exec(`npx size-limit --json`, [], {
+        windowsVerbatimArguments: true,
+        listeners: {
+            stdout: (data) => {
+                output += data.toString();
             }
-        });
-        return parseResult(output);
+        }
     });
-}
-exports.getResults = getResults;
-const getTable = (results) => {
-    const values = results.map((result) => {
-        const total = result.loading + result.running;
+    return parseResults(output);
+});
+const formatChange = (base = 0, current = 0) => {
+    if (current === 0) {
+        return "-100%";
+    }
+    const value = ((current - base) / current) * 100;
+    const formatted = (Math.sign(value) * Math.ceil(Math.abs(value) * 100)) / 100;
+    if (value > 0) {
+        return `+${formatted}% 🔺`;
+    }
+    if (value === 0) {
+        return `${formatted}%`;
+    }
+    return `${formatted}% 🔽`;
+};
+const getTable = (baseResults, currentResults) => {
+    const keys = [
+        ...new Set([...Object.keys(baseResults), ...Object.keys(currentResults)])
+    ];
+    const values = keys.map((key) => {
+        const base = baseResults[key];
+        const current = currentResults[key];
         return [
-            result.name,
-            formatBytes(result.size),
-            formatTime(result.loading),
-            formatTime(result.running),
-            formatTime(total)
+            key,
+            `${formatBytes(current.size)} (${formatChange(base.size, current.size)})`,
+            `${formatTime(current.loading)} (${formatChange(base.loading, current.loading)})`,
+            `${formatTime(current.running)} (${formatChange(base.running, current.running)})`,
+            0
         ];
     });
     return markdown_table_1.default([
-        [
-            "Path",
-            "Size",
-            "Loading time (3g)",
-            "Running time (Snapdragon)",
-            "Total time"
-        ],
+        ["Path", "Size", "Loading (3g)", "Running (Snapdragon)", "Total"],
         ...values
     ]);
 };
@@ -2078,7 +2087,7 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const token = core_1.getInput("github_token");
-            if (github_1.context.payload.pull_request == null) {
+            if (github_1.context.payload.pull_request === null) {
                 core_1.setFailed("No pull request found.");
                 return;
             }
@@ -2088,13 +2097,7 @@ function run() {
             const octokit = new github_1.GitHub(token);
             octokit.issues.createComment(Object.assign(Object.assign({}, github_1.context.repo), { 
                 // eslint-disable-next-line camelcase
-                issue_number: number, body: [
-                    "### Base",
-                    getTable(base),
-                    "",
-                    "### Current",
-                    getTable(current)
-                ].join("\r\n") }));
+                issue_number: number, body: ["### Base", getTable(base, current)].join("\r\n") }));
         }
         catch (error) {
             core_1.setFailed(error.message);

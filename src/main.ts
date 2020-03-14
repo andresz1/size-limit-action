@@ -13,18 +13,9 @@ interface IResult {
   loading: number;
 }
 
-const parseResult = (str: string): Array<IResult> => {
-  const results = JSON.parse(str);
-
-  return results.map((result: any) => {
-    return {
-      name: result.name,
-      size: +result.size,
-      running: +result.running,
-      loading: +result.loading
-    };
-  });
-};
+interface IResults {
+  [name: string]: IResult;
+}
 
 const formatBytes = (size: number): string => {
   return bytes.format(size, { unitSeparator: " " });
@@ -38,7 +29,23 @@ const formatTime = (seconds: number): string => {
   return `${Math.ceil(seconds * 1000)} ms`;
 };
 
-export async function getResults(branch?: string): Promise<Array<IResult>> {
+const parseResults = (str: string): IResults => {
+  const results = JSON.parse(str);
+
+  return results.reduce((current: IResults, result: any) => {
+    return {
+      ...current,
+      [result.name]: {
+        name: result.name,
+        size: +result.size,
+        running: +result.running,
+        loading: +result.loading
+      }
+    };
+  }, {});
+};
+
+const getResults = async (branch?: string): Promise<IResults> => {
   let output = "";
 
   if (branch) {
@@ -56,30 +63,54 @@ export async function getResults(branch?: string): Promise<Array<IResult>> {
     }
   });
 
-  return parseResult(output);
-}
+  return parseResults(output);
+};
 
-const getTable = (results: Array<IResult>): string => {
-  const values = results.map((result: IResult) => {
-    const total = result.loading + result.running;
+const formatChange = (base: number = 0, current: number = 0) => {
+  if (current === 0) {
+    return "-100%";
+  }
+
+  const value = ((current - base) / current) * 100;
+  const formatted = (Math.sign(value) * Math.ceil(Math.abs(value) * 100)) / 100;
+
+  if (value > 0) {
+    return `+${formatted}% 🔺`;
+  }
+
+  if (value === 0) {
+    return `${formatted}%`;
+  }
+
+  return `${formatted}% 🔽`;
+};
+
+const getTable = (baseResults: IResults, currentResults: IResults): string => {
+  const keys = [
+    ...new Set([...Object.keys(baseResults), ...Object.keys(currentResults)])
+  ];
+
+  const values = keys.map((key: string) => {
+    const base = baseResults[key];
+    const current = currentResults[key];
 
     return [
-      result.name,
-      formatBytes(result.size),
-      formatTime(result.loading),
-      formatTime(result.running),
-      formatTime(total)
+      key,
+      `${formatBytes(current.size)} (${formatChange(base.size, current.size)})`,
+      `${formatTime(current.loading)} (${formatChange(
+        base.loading,
+        current.loading
+      )})`,
+      `${formatTime(current.running)} (${formatChange(
+        base.running,
+        current.running
+      )})`,
+      0
     ];
   });
 
   return table([
-    [
-      "Path",
-      "Size",
-      "Loading time (3g)",
-      "Running time (Snapdragon)",
-      "Total time"
-    ],
+    ["Path", "Size", "Loading (3g)", "Running (Snapdragon)", "Total"],
     ...values
   ]);
 };
@@ -88,7 +119,7 @@ async function run() {
   try {
     const token = getInput("github_token");
 
-    if (context.payload.pull_request == null) {
+    if (context.payload.pull_request === null) {
       setFailed("No pull request found.");
       return;
     }
@@ -103,13 +134,7 @@ async function run() {
       ...context.repo,
       // eslint-disable-next-line camelcase
       issue_number: number,
-      body: [
-        "### Base",
-        getTable(base),
-        "",
-        "### Current",
-        getTable(current)
-      ].join("\r\n")
+      body: ["### Base", getTable(base, current)].join("\r\n")
     });
   } catch (error) {
     setFailed(error.message);
