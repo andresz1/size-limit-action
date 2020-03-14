@@ -78,7 +78,7 @@ async function run() {
 
         ### Current
         ${getTable(current)}
-      `
+      `.trim()
     });
   } catch (error) {
     setFailed(error.message);
