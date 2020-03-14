@@ -3,6 +3,8 @@ import { context, GitHub } from "@actions/github";
 import { exec } from "@actions/exec";
 // @ts-ignore
 import table from "markdown-table";
+// @ts-ignore
+import bytes from "bytes";
 
 interface IResult {
   name: string;
@@ -22,6 +24,18 @@ const parseResult = (str: string): Array<IResult> => {
       loading: +result.loading
     };
   });
+};
+
+const formatBytes = (size: number): string => {
+  return bytes.format(size, { unitSeparator: " " });
+};
+
+const formatTime = (seconds: number): string => {
+  if (seconds >= 1) {
+    return `${Math.ceil(seconds * 10) / 10} s`;
+  }
+
+  return `${Math.ceil(seconds * 1000)} ms`;
 };
 
 export async function getResults(branch?: string): Promise<Array<IResult>> {
@@ -47,7 +61,12 @@ export async function getResults(branch?: string): Promise<Array<IResult>> {
 
 const getTable = (results: Array<IResult>): string => {
   const values = results.map((result: IResult) => {
-    return [result.name, result.size, result.running, result.loading];
+    return [
+      result.name,
+      formatBytes(result.size),
+      formatTime(result.running),
+      formatTime(result.loading)
+    ];
   });
 
   return table([["Name", "Size", "Loading time", "Running time"], ...values]);
