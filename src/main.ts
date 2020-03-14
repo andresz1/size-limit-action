@@ -142,7 +142,7 @@ async function run() {
       // eslint-disable-next-line camelcase
       issue_number: number,
       body: [
-        "## [size-limit](https://github.com/ai/size-limit) report 📊",
+        "## [size-limit](https://github.com/ai/size-limit) report",
         getTable(base, current)
       ].join("\r\n")
     });
