@@ -1851,9 +1851,12 @@ const parseResult = (str) => {
         };
     });
 };
-function test() {
+function getResults(branch) {
     return __awaiter(this, void 0, void 0, function* () {
         let output = "";
+        if (branch) {
+            yield exec_1.exec(`git checkout refs/remotes/origin/branch/${branch}`);
+        }
         yield exec_1.exec(`npm install`);
         yield exec_1.exec(`npm run build`);
         yield exec_1.exec(`npx size-limit --json`, [], {
@@ -1867,7 +1870,7 @@ function test() {
         return parseResult(output);
     });
 }
-exports.test = test;
+exports.getResults = getResults;
 const getTable = (results) => {
     const values = results.map((result) => {
         return [result.name, result.size, result.running, result.loading];
@@ -1882,7 +1885,7 @@ function run() {
                 core_1.setFailed("No pull request found.");
                 return;
             }
-            const results = yield test();
+            const results = yield getResults(process.env.GITHUB_BASE_REF);
             const body = getTable(results);
             const number = github_1.context.payload.pull_request.number;
             const octokit = new github_1.GitHub(token);

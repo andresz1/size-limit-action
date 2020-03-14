@@ -24,8 +24,12 @@ const parseResult = (str: string): Array<IResult> => {
   });
 };
 
-export async function test(): Promise<Array<IResult>> {
+export async function getResults(branch?: string): Promise<Array<IResult>> {
   let output = "";
+
+  if (branch) {
+    await exec(`git checkout refs/remotes/origin/branch/${branch}`);
+  }
 
   await exec(`npm install`);
   await exec(`npm run build`);
@@ -58,7 +62,7 @@ async function run() {
       return;
     }
 
-    const results = await test();
+    const results = await getResults(process.env.GITHUB_BASE_REF);
     const body = getTable(results);
 
     const number = context.payload.pull_request.number;
