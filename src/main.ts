@@ -72,13 +72,13 @@ async function run() {
       ...context.repo,
       // eslint-disable-next-line camelcase
       issue_number: number,
-      body: `
-        ### Base
-        ${getTable(base)}
-
-        ### Current
-        ${getTable(current)}
-      `.trim()
+      body: [
+        "### Base",
+        getTable(base),
+        "",
+        "### Current",
+        getTable(current)
+      ].join("\r\n")
     });
   } catch (error) {
     setFailed(error.message);
