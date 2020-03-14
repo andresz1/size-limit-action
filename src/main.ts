@@ -12,29 +12,26 @@ const SIZE_LIMIT_RESULTS = {
 };
 
 interface IResult {
-  size: string;
-  loading: string;
-  running: string;
-  total: string;
+  name: string;
+  size: number;
+  running: number;
+  loading: number;
 }
 
-const getResult = (values: Array<string>, value: string): string => {
-  const index = values.indexOf(`${value}:`);
-  return values[index + 1];
+const parseResult = (str: string): Array<IResult> => {
+  const results = JSON.parse(str);
+
+  return results.map((result: any) => {
+    return {
+      name: result.name,
+      size: +result.size,
+      running: +result.running,
+      loading: +result.loading
+    };
+  });
 };
 
-const getResults = (data: string) => {
-  const values = data.replace(/ +/g, " ").split(" ");
-
-  return {
-    size: getResult(values, SIZE_LIMIT_RESULTS.size),
-    loading: getResult(values, SIZE_LIMIT_RESULTS.loading),
-    running: getResult(values, SIZE_LIMIT_RESULTS.running),
-    total: getResult(values, SIZE_LIMIT_RESULTS.total)
-  };
-};
-
-export async function test(): Promise<string> {
+export async function test(): Promise<Array<IResult>> {
   let output = "";
 
   await exec(`npm install`);
@@ -48,7 +45,7 @@ export async function test(): Promise<string> {
     }
   });
 
-  return output;
+  return parseResult(output);
 }
 
 async function run() {
@@ -60,7 +57,13 @@ async function run() {
       return;
     }
 
-    const result = await test();
+    const [result] = await test();
+    const body = table([
+      ["Name", result.name],
+      ["Size", result.size],
+      ["Loading time", result.loading],
+      ["Running time", result.running]
+    ]);
 
     const number = context.payload.pull_request.number;
     const octokit = new GitHub(token);
@@ -69,7 +72,7 @@ async function run() {
       ...context.repo,
       // eslint-disable-next-line camelcase
       issue_number: number,
-      body: result
+      body
     });
   } catch (error) {
     setFailed(error.message);
