@@ -2105,7 +2105,7 @@ function run() {
             octokit.issues.createComment(Object.assign(Object.assign({}, github_1.context.repo), { 
                 // eslint-disable-next-line camelcase
                 issue_number: number, body: [
-                    "## [size-limit](https://github.com/ai/size-limit) report 📊",
+                    "## [size-limit](https://github.com/ai/size-limit) report",
                     getTable(base, current)
                 ].join("\r\n") }));
         }
