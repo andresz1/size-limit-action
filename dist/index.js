@@ -1897,7 +1897,7 @@ function run() {
 
         ### Current
         ${getTable(current)}
-      ` }));
+      `.trim() }));
         }
         catch (error) {
             core_1.setFailed(error.message);
