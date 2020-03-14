@@ -62,8 +62,8 @@ async function run() {
       return;
     }
 
-    const results = await getResults(process.env.GITHUB_BASE_REF);
-    const body = getTable(results);
+    const base = await getResults(process.env.GITHUB_BASE_REF);
+    const current = await getResults(process.env.GITHUB_BASE_REF);
 
     const number = context.payload.pull_request.number;
     const octokit = new GitHub(token);
@@ -72,7 +72,13 @@ async function run() {
       ...context.repo,
       // eslint-disable-next-line camelcase
       issue_number: number,
-      body
+      body: `
+        ### Base
+        ${getTable(base)}
+
+        ### Current
+        ${getTable(current)}
+      `
     });
   } catch (error) {
     setFailed(error.message);

@@ -1885,13 +1885,19 @@ function run() {
                 core_1.setFailed("No pull request found.");
                 return;
             }
-            const results = yield getResults(process.env.GITHUB_BASE_REF);
-            const body = getTable(results);
+            const base = yield getResults(process.env.GITHUB_BASE_REF);
+            const current = yield getResults(process.env.GITHUB_BASE_REF);
             const number = github_1.context.payload.pull_request.number;
             const octokit = new github_1.GitHub(token);
             octokit.issues.createComment(Object.assign(Object.assign({}, github_1.context.repo), { 
                 // eslint-disable-next-line camelcase
-                issue_number: number, body }));
+                issue_number: number, body: `
+        ### Base
+        ${getTable(base)}
+
+        ### Current
+        ${getTable(current)}
+      ` }));
         }
         catch (error) {
             core_1.setFailed(error.message);
