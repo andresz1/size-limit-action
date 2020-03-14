@@ -93,6 +93,7 @@ const getTable = (baseResults: IResults, currentResults: IResults): string => {
   const values = keys.map((key: string) => {
     const base = baseResults[key];
     const current = currentResults[key];
+    const total = current.loading + current.running;
 
     return [
       key,
@@ -105,11 +106,11 @@ const getTable = (baseResults: IResults, currentResults: IResults): string => {
         base.running,
         current.running
       )})`,
-      0
+      formatTime(total)
     ];
   });
 
-  return table([["Path", "Size", "Loading (3g)", "Running (sd)"], ...values]);
+  return table([["Path", "Size", "Loading", "Running", "Total"], ...values]);
 };
 
 async function run() {

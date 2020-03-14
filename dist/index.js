@@ -2070,15 +2070,16 @@ const getTable = (baseResults, currentResults) => {
     const values = keys.map((key) => {
         const base = baseResults[key];
         const current = currentResults[key];
+        const total = current.loading + current.running;
         return [
             key,
             `${formatBytes(current.size)} (${formatChange(base.size, current.size)})`,
             `${formatTime(current.loading)} (${formatChange(base.loading, current.loading)})`,
             `${formatTime(current.running)} (${formatChange(base.running, current.running)})`,
-            0
+            formatTime(total)
         ];
     });
-    return markdown_table_1.default([["Path", "Size", "Loading (3g)", "Running (sd)"], ...values]);
+    return markdown_table_1.default([["Path", "Size", "Loading", "Running", "Total"], ...values]);
 };
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
