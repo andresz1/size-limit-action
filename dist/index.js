@@ -1781,7 +1781,7 @@ function test() {
         let output = "";
         yield exec_1.exec(`npm install`);
         yield exec_1.exec(`npm run build`);
-        yield exec_1.exec(`npm run size --json`, [], {
+        yield exec_1.exec(`npx size-limit --json`, [], {
             windowsVerbatimArguments: true,
             listeners: {
                 stdout: (data) => {
