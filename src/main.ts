@@ -141,7 +141,10 @@ async function run() {
       ...context.repo,
       // eslint-disable-next-line camelcase
       issue_number: number,
-      body: ["## Size report", getTable(base, current)].join("\r\n")
+      body: [
+        "## [size-limit](https://github.com/ai/size-limit) report 📊",
+        getTable(base, current)
+      ].join("\r\n")
     });
   } catch (error) {
     setFailed(error.message);
