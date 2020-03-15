@@ -14,13 +14,15 @@
   },
   "size-limit": [
     {
-      "path": "dist/index.js"
+      "path": "dist/index.js",
+      "limit": "4500 ms"
     }
   ],
   "dependencies": {
     "@actions/core": "^1.2.3",
     "@actions/exec": "^1.0.3",
     "@actions/github": "^2.1.1",
+    "bytes": "^3.1.0",
     "markdown-table": "^2.0.0"
   },
   "devDependencies": {

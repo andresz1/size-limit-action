@@ -3,6 +3,8 @@ import { context, GitHub } from "@actions/github";
 import { exec } from "@actions/exec";
 // @ts-ignore
 import table from "markdown-table";
+// @ts-ignore
+import bytes from "bytes";
 
 interface IResult {
   name: string;
@@ -11,30 +13,52 @@ interface IResult {
   loading: number;
 }
 
-const parseResult = (str: string): Array<IResult> => {
-  const results = JSON.parse(str);
+interface IResults {
+  [name: string]: IResult;
+}
 
-  return results.map((result: any) => {
-    return {
-      name: result.name,
-      size: +result.size,
-      running: +result.running,
-      loading: +result.loading
-    };
-  });
+const formatBytes = (size: number): string => {
+  return bytes.format(size, { unitSeparator: " " });
 };
 
-export async function getResults(branch?: string): Promise<Array<IResult>> {
+const formatTime = (seconds: number): string => {
+  if (seconds >= 1) {
+    return `${Math.ceil(seconds * 10) / 10} s`;
+  }
+
+  return `${Math.ceil(seconds * 1000)} ms`;
+};
+
+const parseResults = (str: string): IResults => {
+  const results = JSON.parse(str);
+
+  return results.reduce((current: IResults, result: any) => {
+    return {
+      ...current,
+      [result.name]: {
+        name: result.name,
+        size: +result.size,
+        running: +result.running,
+        loading: +result.loading
+      }
+    };
+  }, {});
+};
+
+const getResults = async (
+  branch?: string
+): Promise<{ status: number; results: IResults }> => {
   let output = "";
 
   if (branch) {
-    await exec(`git checkout ${branch}`);
+    await exec(`git checkout -f ${branch}`);
   }
 
   await exec(`npm install`);
   await exec(`npm run build`);
-  await exec(`npx size-limit --json`, [], {
+  const status = await exec(`npx size-limit --json`, [], {
     windowsVerbatimArguments: true,
+    ignoreReturnCode: true,
     listeners: {
       stdout: (data: Buffer) => {
         output += data.toString();
@@ -42,37 +66,92 @@ export async function getResults(branch?: string): Promise<Array<IResult>> {
     }
   });
 
-  return parseResult(output);
-}
+  return {
+    status,
+    results: parseResults(output)
+  };
+};
 
-const getTable = (results: Array<IResult>): string => {
-  const values = results.map((result: IResult) => {
-    return [result.name, result.size, result.running, result.loading];
+const formatChange = (base: number = 0, current: number = 0) => {
+  if (current === 0) {
+    return "-100%";
+  }
+
+  const value = ((current - base) / current) * 100;
+  const formatted = (Math.sign(value) * Math.ceil(Math.abs(value) * 100)) / 100;
+
+  if (value > 0) {
+    return `+${formatted}% 🔺`;
+  }
+
+  if (value === 0) {
+    return `${formatted}%`;
+  }
+
+  return `${formatted}% 🔽`;
+};
+
+const getTable = (baseResults: IResults, currentResults: IResults): string => {
+  const keys = [
+    ...new Set([...Object.keys(baseResults), ...Object.keys(currentResults)])
+  ];
+
+  const values = keys.map((key: string) => {
+    const base = baseResults[key];
+    const current = currentResults[key];
+    const total = current.loading + current.running;
+
+    return [
+      key,
+      `${formatBytes(current.size)} (${formatChange(base.size, current.size)})`,
+      `${formatTime(current.loading)} (${formatChange(
+        base.loading,
+        current.loading
+      )})`,
+      `${formatTime(current.running)} (${formatChange(
+        base.running,
+        current.running
+      )})`,
+      formatTime(total)
+    ];
   });
 
-  return table([["Name", "Size", "Loading time", "Running time"], ...values]);
+  return table([
+    [
+      "Path",
+      "Size",
+      "Loading time (3g)",
+      "Running time (snapdragon)",
+      "Total time"
+    ],
+    ...values
+  ]);
 };
 
 async function run() {
   try {
     const token = getInput("github_token");
 
-    if (context.payload.pull_request == null) {
+    if (context.payload.pull_request === null) {
       setFailed("No pull request found.");
       return;
     }
 
-    const results = await getResults(process.env.GITHUB_BASE_REF);
-    const body = getTable(results);
+    const { status, results: current } = await getResults();
+    const { results: base } = await getResults(process.env.GITHUB_BASE_REF);
 
     const number = context.payload.pull_request.number;
     const octokit = new GitHub(token);
 
-    octokit.issues.createComment({
+    octokit.pulls.createReview({
       ...context.repo,
       // eslint-disable-next-line camelcase
-      issue_number: number,
-      body
+      pull_number: number,
+      event: status > 0 ? "REQUEST_CHANGES" : "COMMENT",
+      body: [
+        "## [size-limit](https://github.com/ai/size-limit) report",
+        getTable(base, current)
+      ].join("\r\n")
     });
   } catch (error) {
     setFailed(error.message);
