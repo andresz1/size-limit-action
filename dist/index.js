@@ -2007,111 +2007,41 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const core_1 = __webpack_require__(470);
 const github_1 = __webpack_require__(469);
-const exec_1 = __webpack_require__(986);
 // @ts-ignore
 const markdown_table_1 = __importDefault(__webpack_require__(366));
-// @ts-ignore
-const bytes_1 = __importDefault(__webpack_require__(63));
-const formatBytes = (size) => {
-    return bytes_1.default.format(size, { unitSeparator: " " });
-};
-const formatTime = (seconds) => {
-    if (seconds >= 1) {
-        return `${Math.ceil(seconds * 10) / 10} s`;
-    }
-    return `${Math.ceil(seconds * 1000)} ms`;
-};
-const parseResults = (str) => {
-    const results = JSON.parse(str);
-    return results.reduce((current, result) => {
-        return Object.assign(Object.assign({}, current), { [result.name]: {
-                name: result.name,
-                size: +result.size,
-                running: +result.running,
-                loading: +result.loading
-            } });
-    }, {});
-};
-const getResults = (branch) => __awaiter(void 0, void 0, void 0, function* () {
-    let output = "";
-    if (branch) {
-        yield exec_1.exec(`git checkout -f ${branch}`);
-    }
-    yield exec_1.exec(`npm install`);
-    yield exec_1.exec(`npm run build`);
-    const status = yield exec_1.exec(`npx size-limit --json`, [], {
-        windowsVerbatimArguments: true,
-        ignoreReturnCode: true,
-        listeners: {
-            stdout: (data) => {
-                output += data.toString();
-            }
-        }
-    });
-    return {
-        status,
-        results: parseResults(output)
-    };
-});
-const formatChange = (base = 0, current = 0) => {
-    if (current === 0) {
-        return "-100%";
-    }
-    const value = ((current - base) / current) * 100;
-    const formatted = (Math.sign(value) * Math.ceil(Math.abs(value) * 100)) / 100;
-    if (value > 0) {
-        return `+${formatted}% 🔺`;
-    }
-    if (value === 0) {
-        return `${formatted}%`;
-    }
-    return `${formatted}% 🔽`;
-};
-const getTable = (baseResults, currentResults) => {
-    const keys = [
-        ...new Set([...Object.keys(baseResults), ...Object.keys(currentResults)])
-    ];
-    const values = keys.map((key) => {
-        const base = baseResults[key];
-        const current = currentResults[key];
-        const total = current.loading + current.running;
-        return [
-            key,
-            `${formatBytes(current.size)} (${formatChange(base.size, current.size)})`,
-            `${formatTime(current.loading)} (${formatChange(base.loading, current.loading)})`,
-            `${formatTime(current.running)} (${formatChange(base.running, current.running)})`,
-            formatTime(total)
-        ];
-    });
-    return markdown_table_1.default([
-        [
-            "Path",
-            "Size",
-            "Loading time (3g)",
-            "Running time (snapdragon)",
-            "Total time"
-        ],
-        ...values
-    ]);
-};
+const Git_1 = __importDefault(__webpack_require__(677));
+const SizeLimit_1 = __importDefault(__webpack_require__(617));
+const TABLE_HEADER = [
+    "Path",
+    "Size",
+    "Loading time (3g)",
+    "Running time (snapdragon)",
+    "Total time"
+];
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const token = core_1.getInput("github_token");
             if (github_1.context.payload.pull_request === null) {
-                core_1.setFailed("No pull request found.");
-                return;
+                return core_1.setFailed("No pull request found.");
             }
-            const { status, results: current } = yield getResults();
-            const { results: base } = yield getResults(process.env.GITHUB_BASE_REF);
-            const number = github_1.context.payload.pull_request.number;
+            const token = core_1.getInput("github_token");
             const octokit = new github_1.GitHub(token);
+            const git = new Git_1.default();
+            const limit = new SizeLimit_1.default();
+            const { status, output } = yield git.execSizeLimit();
+            const { output: baseOutput } = yield git.execSizeLimit(process.env.GITHUB_BASE_REF);
+            const base = limit.parseResults(baseOutput);
+            const current = limit.parseResults(output);
+            const number = github_1.context.payload.pull_request.number;
+            const event = status > 0 ? "REQUEST_CHANGES" : "COMMENT";
+            const body = [
+                "## [size-limit](https://github.com/ai/size-limit) report",
+                markdown_table_1.default([TABLE_HEADER, ...limit.formatResults(base, current)])
+            ].join("\r\n");
             octokit.pulls.createReview(Object.assign(Object.assign({}, github_1.context.repo), { 
                 // eslint-disable-next-line camelcase
-                pull_number: number, event: status > 0 ? "REQUEST_CHANGES" : "COMMENT", body: [
-                    "## [size-limit](https://github.com/ai/size-limit) report",
-                    getTable(base, current)
-                ].join("\r\n") }));
+                pull_number: number, event,
+                body }));
         }
         catch (error) {
             core_1.setFailed(error.message);
@@ -9236,6 +9166,76 @@ module.exports = require("events");
 
 /***/ }),
 
+/***/ 617:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+// @ts-ignore
+const bytes_1 = __importDefault(__webpack_require__(63));
+class SizeLimit {
+    parseResults(output) {
+        const results = JSON.parse(output);
+        return results.reduce((current, result) => {
+            const total = result.running + result.loading;
+            return Object.assign(Object.assign({}, current), { [result.name]: {
+                    name: result.name,
+                    size: +result.size,
+                    running: +result.running,
+                    loading: +result.loading,
+                    total
+                } });
+        }, {});
+    }
+    formatBytes(size) {
+        return bytes_1.default.format(size, { unitSeparator: " " });
+    }
+    formatTime(seconds) {
+        if (seconds >= 1) {
+            return `${Math.ceil(seconds * 10) / 10} s`;
+        }
+        return `${Math.ceil(seconds * 1000)} ms`;
+    }
+    formatChange(base = 0, current = 0) {
+        if (current === 0) {
+            return "-100%";
+        }
+        const value = ((current - base) / current) * 100;
+        const formatted = (Math.sign(value) * Math.ceil(Math.abs(value) * 100)) / 100;
+        if (value > 0) {
+            return `+${formatted}% 🔺`;
+        }
+        if (value === 0) {
+            return `${formatted}%`;
+        }
+        return `${formatted}% 🔽`;
+    }
+    formatLine(value, change) {
+        return `${value} (${change})`;
+    }
+    formatResult(name, base, current) {
+        return [
+            name,
+            this.formatLine(this.formatBytes(current.size), this.formatChange(base.size, current.size)),
+            this.formatLine(this.formatTime(current.loading), this.formatChange(base.loading, current.loading)),
+            this.formatLine(this.formatTime(current.running), this.formatChange(base.running, current.running)),
+            this.formatTime(current.total)
+        ];
+    }
+    formatResults(base, current) {
+        const names = [...new Set([...Object.keys(base), ...Object.keys(current)])];
+        return names.map((name) => this.formatResult(name, base[name], current[name]));
+    }
+}
+exports.default = SizeLimit;
+
+
+/***/ }),
+
 /***/ 621:
 /***/ (function(module, __unusedexports, __webpack_require__) {
 
@@ -9701,6 +9701,52 @@ function authenticate(state, options) {
 module.exports = function btoa(str) {
   return new Buffer(str).toString('base64')
 }
+
+
+/***/ }),
+
+/***/ 677:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const exec_1 = __webpack_require__(986);
+class Git {
+    execSizeLimit(branch) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let output = "";
+            if (branch) {
+                yield exec_1.exec(`git checkout -f ${branch}`);
+            }
+            yield exec_1.exec("npm install");
+            yield exec_1.exec("npm run build");
+            const status = yield exec_1.exec("npx size-limit --json", [], {
+                windowsVerbatimArguments: true,
+                ignoreReturnCode: true,
+                listeners: {
+                    stdout: (data) => {
+                        output += data.toString();
+                    }
+                }
+            });
+            return {
+                status,
+                output
+            };
+        });
+    }
+}
+exports.default = Git;
 
 
 /***/ }),
