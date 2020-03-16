@@ -13,8 +13,8 @@
 
 This action uses [Size Limit](https://github.com/ai/size-limit) (performance budget tool for JavaScript) to calculate the real cost of your JavaScript for end-users. The main features of this action are:
 
-- Commenting pull requests with the comparassion of the output of Size Limit.
-- Rejecting a pull request if the cost exceeds the limit.
+- **Commenting** pull requests with the comparassion of the output of Size Limit.
+- **Rejecting** a pull request if the cost exceeds the limit.
 
 <p align="center">
   <img alt="pr comment" width="540" src="/assets/pr.png">
