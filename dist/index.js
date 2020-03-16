@@ -26855,13 +26855,8 @@ class Git {
                 yield exec_1.exec(`git checkout -f ${branch}`);
             }
             yield exec_1.exec("npm install");
-<<<<<<< HEAD
-            yield exec_1.exec("npm run build");
-            const status = yield exec_1.exec("npm run size -- --json", [], {
-=======
             yield exec_1.exec("npm run size-build");
             const status = yield exec_1.exec("npx size-limit --json", [], {
->>>>>>> master
                 windowsVerbatimArguments: true,
                 ignoreReturnCode: true,
                 listeners: {
