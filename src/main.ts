@@ -2,9 +2,10 @@ import { getInput, setFailed } from "@actions/core";
 import { context, GitHub } from "@actions/github";
 // @ts-ignore
 import table from "markdown-table";
+// @ts-ignore
+import { tail } from "lodash";
 import Git from "./Git";
 import SizeLimit from "./SizeLimit";
-import lodash from "loadash";
 
 const TABLE_HEADER = [
   "Path",
@@ -21,7 +22,7 @@ async function run() {
       return setFailed("No pull request found.");
     }
 
-    lodash.tail([1, 2]);
+    tail([1, 2]);
 
     const token = getInput("github_token");
     const octokit = new GitHub(token);
