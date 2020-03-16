@@ -10,7 +10,8 @@
     "lint": "eslint src/**/*.ts",
     "test": "jest",
     "build": "ncc build src/main.ts -o dist",
-    "size": "npm run build && size-limit"
+    "size-build": "npm run build",
+    "size": "npm run size-build && size-limit"
   },
   "size-limit": [
     {
