@@ -25,7 +25,7 @@ This action uses [Size Limit](https://github.com/ai/size-limit) (performance bud
 },
 ```
 3. Add this action inside `.github/workflows`
-````
+```
 name: "size"
 on:
   pull_request:
@@ -41,3 +41,9 @@ jobs:
       - uses: andresz1/size-limit-action@v0.1.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+```
+4. You are now all set
+
+## Feedback
+
+Pull requests, feature ideas and bug reports are very welcome. We highly appreciate any feedback.
