@@ -16,12 +16,16 @@ This action uses [Size Limit](https://github.com/ai/size-limit) (performance bud
 - Commenting pull requests with the comparassion of the output of Size Limit.
 - Rejecting a pull request if the cost exceeds the limit.
 
+<p align="center">
+  <img alt="pr comment" width="540" src="/assets/pr.png">
+</p>
+
 ## Usage
 1. Install Size Limit choosing the scenario that fits you better ([JS Application](https://github.com/ai/size-limit#js-applications), [Big Libraries](https://github.com/ai/size-limit#big-libraries) or [Small Libraries](https://github.com/ai/size-limit#small-libraries)).
-2. Add `size` script in you `package.json` similar as follows:
+2. Add `size-build` script in you `package.json`. This script should perform changes neccessary to perform a `size-limit`. For example:
 ```json
 "scripts": {
-  "size": "npm run build && size-limit"
+  "size": "npm run build"
 },
 ```
 3. Add this action inside `.github/workflows`
