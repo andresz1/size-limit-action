@@ -22,14 +22,23 @@ This action uses [Size Limit](https://github.com/ai/size-limit) (performance bud
 
 ## Usage
 1. Install Size Limit choosing the scenario that fits you better ([JS Application](https://github.com/ai/size-limit#js-applications), [Big Libraries](https://github.com/ai/size-limit#big-libraries) or [Small Libraries](https://github.com/ai/size-limit#small-libraries)).
-2. Add `size-build` script in you `package.json`. This script should perform changes neccessary to perform a `size-limit`. For example:
+2. Add `size-build` script in your `package.json`. This script should perform changes neccessary to run `size-limit`. For example:
 ```json
 "scripts": {
   "size-build": "npm run build",
   "size": "npm run size-build && size-limit"
 },
 ```
-3. Add this action inside `.github/workflows`
+3. Define Size limit configuration. For example (inside `package.json`):
+```
+"size-limit": [
+  {
+    "path": "dist/index.js",
+    "limit": "4500 ms"
+  }
+]
+```
+4. Add the following action inside `.github/workflows`
 ```
 name: "size"
 on:
@@ -47,7 +56,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
-4. You are now all set
+5. You are now all set
 
 ## Feedback
 
