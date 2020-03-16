@@ -11,8 +11,8 @@ class Git {
     }
 
     await exec("npm install");
-    await exec("npm run build");
-    const status = await exec("npm run size -- --json", [], {
+    await exec("npm run size-build");
+    const status = await exec("npx size-limit --json", [], {
       windowsVerbatimArguments: true,
       ignoreReturnCode: true,
       listeners: {
