@@ -12,6 +12,7 @@ const TABLE_HEADER = [
   "Running time (snapdragon)",
   "Total time"
 ];
+const SIZE_LIMIT_URL = "https://github.com/ai/size-limit";
 
 async function run() {
   try {
@@ -34,7 +35,7 @@ async function run() {
     const number = context.payload.pull_request.number;
     const event = status > 0 ? "REQUEST_CHANGES" : "COMMENT";
     const body = [
-      "## [size-limit](https://github.com/ai/size-limit) report",
+      `## [size-limit](${SIZE_LIMIT_URL}) report`,
       table([TABLE_HEADER, ...limit.formatResults(base, current)])
     ].join("\r\n");
 
