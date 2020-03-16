@@ -25,7 +25,7 @@ This action uses [Size Limit](https://github.com/ai/size-limit) (performance bud
 2. Add `size-build` script in you `package.json`. This script should perform changes neccessary to perform a `size-limit`. For example:
 ```json
 "scripts": {
-  "size": "npm run build"
+  "size-build": "npm run build"
 },
 ```
 3. Add this action inside `.github/workflows`
