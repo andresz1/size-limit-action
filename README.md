@@ -30,7 +30,7 @@ This action uses [Size Limit](https://github.com/ai/size-limit) (performance bud
 },
 ```
 3. Define Size limit configuration. For example (inside `package.json`):
-```
+```json
 "size-limit": [
   {
     "path": "dist/index.js",
