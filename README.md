@@ -38,8 +38,8 @@ This action uses [Size Limit](https://github.com/ai/size-limit) (performance bud
   }
 ]
 ```
-4. Add the following action inside `.github/workflows`
-```
+4. Add the following action inside `.github/workflows/size-limit.yml`
+```yaml
 name: "size"
 on:
   pull_request:
