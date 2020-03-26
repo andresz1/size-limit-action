@@ -2026,10 +2026,11 @@ function run() {
                 return core_1.setFailed("No pull request found.");
             }
             const token = core_1.getInput("github_token");
+            const skipStep = core_1.getInput("skip_step");
             const octokit = new github_1.GitHub(token);
             const term = new Term_1.default();
             const limit = new SizeLimit_1.default();
-            const { status, output } = yield term.execSizeLimit();
+            const { status, output } = yield term.execSizeLimit(null, skipStep);
             const { output: baseOutput } = yield term.execSizeLimit(process.env.GITHUB_BASE_REF);
             const base = limit.parseResults(baseOutput);
             const current = limit.parseResults(output);
