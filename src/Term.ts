@@ -1,8 +1,13 @@
 import { exec } from "@actions/exec";
+import hasYarn from "has-yarn";
 
-class Git {
+const INSTALL_STEP = "install";
+const BUILD_STEP = "build";
+
+class Term {
   async execSizeLimit(
-    branch?: string
+    branch?: string,
+    skipStep?: string
   ): Promise<{ status: number; output: string }> {
     let output = "";
 
@@ -10,8 +15,19 @@ class Git {
       await exec(`git checkout -f ${branch}`);
     }
 
-    await exec("npm install");
-    await exec("npm run size-build");
+    if (skipStep !== INSTALL_STEP && skipStep !== BUILD_STEP) {
+      try {
+        await exec("npm run size-install");
+      } catch (error) {
+        const manager = hasYarn() ? "yarn" : "npm";
+        await exec(`${manager} install`);
+      }
+    }
+
+    if (skipStep !== BUILD_STEP) {
+      await exec("npm run size-build");
+    }
+
     const status = await exec("npx size-limit --json", [], {
       windowsVerbatimArguments: true,
       ignoreReturnCode: true,
@@ -29,4 +45,4 @@ class Git {
   }
 }
 
-export default Git;
+export default Term;
