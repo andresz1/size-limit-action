@@ -29,7 +29,7 @@ This action uses [Size Limit](https://github.com/ai/size-limit) (performance bud
   "size": "npm run size-build && size-limit"
 },
 ```
-You can optionally specify `size-install` to define how dependencies should be install. If not `yarn` or `npm install` will be ran by default.
+You can optionally specify `size-install` to define how dependencies should be installed, if not `yarn` or `npm install` will be executed by default.
 
 3. Define Size limit configuration. For example (inside `package.json`):
 ```json
