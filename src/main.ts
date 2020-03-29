@@ -2,7 +2,7 @@ import { getInput, setFailed } from "@actions/core";
 import { context, GitHub } from "@actions/github";
 // @ts-ignore
 import table from "markdown-table";
-import Git from "./Git";
+import Term from "./Term";
 import SizeLimit from "./SizeLimit";
 
 const TABLE_HEADER = [
@@ -21,12 +21,13 @@ async function run() {
     }
 
     const token = getInput("github_token");
+    const skipStep = getInput("skip_step");
     const octokit = new GitHub(token);
-    const git = new Git();
+    const term = new Term();
     const limit = new SizeLimit();
 
-    const { status, output } = await git.execSizeLimit();
-    const { output: baseOutput } = await git.execSizeLimit(
+    const { status, output } = await term.execSizeLimit(null, skipStep);
+    const { output: baseOutput } = await term.execSizeLimit(
       process.env.GITHUB_BASE_REF
     );
     const base = limit.parseResults(baseOutput);
