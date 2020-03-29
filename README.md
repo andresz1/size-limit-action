@@ -29,6 +29,8 @@ This action uses [Size Limit](https://github.com/ai/size-limit) (performance bud
   "size": "npm run size-build && size-limit"
 },
 ```
+You can optionally specify `size-install` to define how dependencies should be install. If not `yarn` or `npm install` will be ran by default.
+
 3. Define Size limit configuration. For example (inside `package.json`):
 ```json
 "size-limit": [
@@ -52,7 +54,7 @@ jobs:
       CI_JOB_NUMBER: 1
     steps:
       - uses: actions/checkout@v1
-      - uses: andresz1/size-limit-action@v1.0.0
+      - uses: andresz1/size-limit-action@v1.1.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
