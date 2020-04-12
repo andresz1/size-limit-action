@@ -1,7 +1,5 @@
 <p align="center">
-  <a href="https://babeljs.io/">
-    <img alt="Size Limit Action" src="/assets/logo.png" width="220">
-  </a>
+  <img alt="Size Limit Action" src="/assets/logo.png" width="220">
 </p>
 
 <p align="center">
