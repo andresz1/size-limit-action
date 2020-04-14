@@ -1,6 +1,6 @@
 {
   "name": "size-limit-action",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "private": true,
   "description": "size-limit action",
   "main": "lib/main.js",
