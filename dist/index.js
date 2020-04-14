@@ -2011,13 +2011,6 @@ const github_1 = __webpack_require__(469);
 const markdown_table_1 = __importDefault(__webpack_require__(366));
 const Term_1 = __importDefault(__webpack_require__(733));
 const SizeLimit_1 = __importDefault(__webpack_require__(617));
-const TABLE_HEADER = [
-    "Path",
-    "Size",
-    "Loading time (3g)",
-    "Running time (snapdragon)",
-    "Total time"
-];
 const SIZE_LIMIT_URL = "https://github.com/ai/size-limit";
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -2038,7 +2031,7 @@ function run() {
             const event = status > 0 ? "REQUEST_CHANGES" : "COMMENT";
             const body = [
                 `## [size-limit](${SIZE_LIMIT_URL}) report`,
-                markdown_table_1.default([TABLE_HEADER, ...limit.formatResults(base, current)])
+                markdown_table_1.default(limit.formatResults(base, current))
             ].join("\r\n");
             octokit.pulls.createReview(Object.assign(Object.assign({}, github_1.context.repo), { 
                 // eslint-disable-next-line camelcase
@@ -9278,10 +9271,7 @@ class SizeLimit {
     formatSizeResult(name, base, current) {
         return [
             name,
-            this.formatLine(this.formatBytes(current.size), this.formatChange(base.size, current.size)),
-            "-",
-            "-",
-            "-"
+            this.formatLine(this.formatBytes(current.size), this.formatChange(base.size, current.size))
         ];
     }
     formatTimeResult(name, base, current) {
@@ -9311,14 +9301,27 @@ class SizeLimit {
     }
     formatResults(base, current) {
         const names = [...new Set([...Object.keys(base), ...Object.keys(current)])];
-        return names.map((name) => {
-            if (current[name].total !== undefined) {
-                return this.formatTimeResult(name, base[name], current[name]);
+        const isSize = names.some((name) => current[name].total === undefined);
+        const header = isSize
+            ? SizeLimit.SIZE_RESULTS_HEADER
+            : SizeLimit.TIME_RESULTS_HEADER;
+        const fields = names.map((name) => {
+            if (isSize) {
+                return this.formatSizeResult(name, base[name], current[name]);
             }
-            return this.formatSizeResult(name, base[name], current[name]);
+            return this.formatTimeResult(name, base[name], current[name]);
         });
+        return [header, ...fields];
     }
 }
+SizeLimit.SIZE_RESULTS_HEADER = ["Path", "Size"];
+SizeLimit.TIME_RESULTS_HEADER = [
+    "Path",
+    "Size",
+    "Loading time (3g)",
+    "Running time (snapdragon)",
+    "Total time"
+];
 exports.default = SizeLimit;
 
 

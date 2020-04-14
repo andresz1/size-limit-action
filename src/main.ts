@@ -5,13 +5,6 @@ import table from "markdown-table";
 import Term from "./Term";
 import SizeLimit from "./SizeLimit";
 
-const TABLE_HEADER = [
-  "Path",
-  "Size",
-  "Loading time (3g)",
-  "Running time (snapdragon)",
-  "Total time"
-];
 const SIZE_LIMIT_URL = "https://github.com/ai/size-limit";
 
 async function run() {
@@ -37,7 +30,7 @@ async function run() {
     const event = status > 0 ? "REQUEST_CHANGES" : "COMMENT";
     const body = [
       `## [size-limit](${SIZE_LIMIT_URL}) report`,
-      table([TABLE_HEADER, ...limit.formatResults(base, current)])
+      table(limit.formatResults(base, current))
     ].join("\r\n");
 
     octokit.pulls.createReview({

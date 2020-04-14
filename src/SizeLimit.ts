@@ -10,6 +10,16 @@ interface IResult {
 }
 
 class SizeLimit {
+  static SIZE_RESULTS_HEADER = ["Path", "Size"];
+
+  static TIME_RESULTS_HEADER = [
+    "Path",
+    "Size",
+    "Loading time (3g)",
+    "Running time (snapdragon)",
+    "Total time"
+  ];
+
   private formatBytes(size: number): string {
     return bytes.format(size, { unitSeparator: " " });
   }
@@ -46,20 +56,25 @@ class SizeLimit {
     return `${value} (${change})`;
   }
 
-  private formatSizeResult(name: string, base: IResult, current: IResult): Array<string> {
+  private formatSizeResult(
+    name: string,
+    base: IResult,
+    current: IResult
+  ): Array<string> {
     return [
       name,
       this.formatLine(
         this.formatBytes(current.size),
         this.formatChange(base.size, current.size)
-      ),
-      "-",
-      "-",
-      "-"
+      )
     ];
   }
 
-  private formatTimeResult(name: string, base: IResult, current: IResult): Array<string> {
+  private formatTimeResult(
+    name: string,
+    base: IResult,
+    current: IResult
+  ): Array<string> {
     return [
       name,
       this.formatLine(
@@ -93,7 +108,7 @@ class SizeLimit {
             running,
             loading,
             total: loading + running
-          }
+          };
         }
 
         return {
@@ -114,14 +129,20 @@ class SizeLimit {
     current: { [name: string]: IResult }
   ): Array<Array<string>> {
     const names = [...new Set([...Object.keys(base), ...Object.keys(current)])];
-
-    return names.map((name: string) => {
-      if (current[name].total !== undefined) {
-        return this.formatTimeResult(name, base[name], current[name]);
+    const isSize = names.some(
+      (name: string) => current[name].total === undefined
+    );
+    const header = isSize
+      ? SizeLimit.SIZE_RESULTS_HEADER
+      : SizeLimit.TIME_RESULTS_HEADER;
+    const fields = names.map((name: string) => {
+      if (isSize) {
+        return this.formatSizeResult(name, base[name], current[name]);
       }
-
-      return this.formatSizeResult(name, base[name], current[name]);
+      return this.formatTimeResult(name, base[name], current[name]);
     });
+
+    return [header, ...fields];
   }
 }
 export default SizeLimit;

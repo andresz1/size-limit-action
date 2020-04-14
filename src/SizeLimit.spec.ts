@@ -64,6 +64,7 @@ describe("SizeLimit", () => {
     };
 
     expect(limit.formatResults(base, current)).toEqual([
+      SizeLimit.TIME_RESULTS_HEADER,
       [
         "dist/index.js",
         "98.53 KB (-9.92% 🔽)",
@@ -90,12 +91,10 @@ describe("SizeLimit", () => {
     };
 
     expect(limit.formatResults(base, current)).toEqual([
+      SizeLimit.SIZE_RESULTS_HEADER,
       [
         "dist/index.js",
-        "98.53 KB (-9.92% 🔽)",
-        "-",
-        "-",
-        "-"
+        "98.53 KB (-9.92% 🔽)"
       ]
     ]);
   });
