@@ -32,8 +32,19 @@ async function run() {
       null,
       buildScript
     );
-    const base = limit.parseResults(baseOutput);
-    const current = limit.parseResults(output);
+
+    let base;
+    let current;
+
+    try {
+      base = limit.parseResults(baseOutput);
+      current = limit.parseResults(output);
+    } catch (error) {
+      console.log(
+        "Error parsing size-limit output. The output should be a json."
+      );
+      throw error;
+    }
 
     const number = context.payload.pull_request.number;
     const event = status > 0 ? "REQUEST_CHANGES" : "COMMENT";
@@ -51,11 +62,9 @@ async function run() {
         body
       });
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(`
-        Error creating PR review.
-        This can happen for PR's originating from a fork without write permissions.
-      `);
+      console.log(
+        "Error creating PR review. This can happen for PR's originating from a fork without write permissions."
+      );
     }
   } catch (error) {
     setFailed(error.message);
