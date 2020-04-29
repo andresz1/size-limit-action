@@ -671,9 +671,9 @@ module.exports = require("tls");
 /***/ }),
 
 /***/ 18:
-/***/ (function() {
+/***/ (function(module) {
 
-eval("require")("encoding");
+module.exports = eval("require")("encoding");
 
 
 /***/ }),
@@ -2016,27 +2016,41 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             if (github_1.context.payload.pull_request === null) {
-                return core_1.setFailed("No pull request found.");
+                throw new Error("No PR found. Only pull_request workflows are supported.");
             }
             const token = core_1.getInput("github_token");
             const skipStep = core_1.getInput("skip_step");
+            const buildScript = core_1.getInput("build_script");
             const octokit = new github_1.GitHub(token);
             const term = new Term_1.default();
             const limit = new SizeLimit_1.default();
-            const { status, output } = yield term.execSizeLimit(null, skipStep);
-            const { output: baseOutput } = yield term.execSizeLimit(process.env.GITHUB_BASE_REF);
-            const base = limit.parseResults(baseOutput);
-            const current = limit.parseResults(output);
+            const { status, output } = yield term.execSizeLimit(null, skipStep, buildScript);
+            const { output: baseOutput } = yield term.execSizeLimit(process.env.GITHUB_BASE_REF, null, buildScript);
+            let base;
+            let current;
+            try {
+                base = limit.parseResults(baseOutput);
+                current = limit.parseResults(output);
+            }
+            catch (error) {
+                console.log("Error parsing size-limit output. The output should be a json.");
+                throw error;
+            }
             const number = github_1.context.payload.pull_request.number;
             const event = status > 0 ? "REQUEST_CHANGES" : "COMMENT";
             const body = [
                 `## [size-limit](${SIZE_LIMIT_URL}) report`,
                 markdown_table_1.default(limit.formatResults(base, current))
             ].join("\r\n");
-            octokit.pulls.createReview(Object.assign(Object.assign({}, github_1.context.repo), { 
-                // eslint-disable-next-line camelcase
-                pull_number: number, event,
-                body }));
+            try {
+                octokit.pulls.createReview(Object.assign(Object.assign({}, github_1.context.repo), { 
+                    // eslint-disable-next-line camelcase
+                    pull_number: number, event,
+                    body }));
+            }
+            catch (error) {
+                console.log("Error creating PR review. This can happen for PR's originating from a fork without write permissions.");
+            }
         }
         catch (error) {
             core_1.setFailed(error.message);
@@ -10395,23 +10409,19 @@ const has_yarn_1 = __importDefault(__webpack_require__(931));
 const INSTALL_STEP = "install";
 const BUILD_STEP = "build";
 class Term {
-    execSizeLimit(branch, skipStep) {
+    execSizeLimit(branch, skipStep, buildScript) {
         return __awaiter(this, void 0, void 0, function* () {
+            const manager = has_yarn_1.default() ? "yarn" : "npm";
             let output = "";
             if (branch) {
                 yield exec_1.exec(`git checkout -f ${branch}`);
             }
             if (skipStep !== INSTALL_STEP && skipStep !== BUILD_STEP) {
-                try {
-                    yield exec_1.exec("npm run size-install");
-                }
-                catch (error) {
-                    const manager = has_yarn_1.default() ? "yarn" : "npm";
-                    yield exec_1.exec(`${manager} install`);
-                }
+                yield exec_1.exec(`${manager} install`);
             }
             if (skipStep !== BUILD_STEP) {
-                yield exec_1.exec("npm run size-build");
+                const script = buildScript || "build";
+                yield exec_1.exec(`${manager} run ${script}`);
             }
             const status = yield exec_1.exec("npx size-limit --json", [], {
                 windowsVerbatimArguments: true,
