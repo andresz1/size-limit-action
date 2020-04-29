@@ -7,8 +7,10 @@ const BUILD_STEP = "build";
 class Term {
   async execSizeLimit(
     branch?: string,
-    skipStep?: string
+    skipStep?: string,
+    buildScript?: string
   ): Promise<{ status: number; output: string }> {
+    const manager = hasYarn() ? "yarn" : "npm";
     let output = "";
 
     if (branch) {
@@ -16,16 +18,12 @@ class Term {
     }
 
     if (skipStep !== INSTALL_STEP && skipStep !== BUILD_STEP) {
-      try {
-        await exec("npm run size-install");
-      } catch (error) {
-        const manager = hasYarn() ? "yarn" : "npm";
-        await exec(`${manager} install`);
-      }
+      await exec(`${manager} install`);
     }
 
     if (skipStep !== BUILD_STEP) {
-      await exec("npm run size-build");
+      const script = buildScript || "build";
+      await exec(`${manager} run ${script}`);
     }
 
     const status = await exec("npx size-limit --json", [], {
