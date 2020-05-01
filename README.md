@@ -20,15 +20,13 @@ This action uses [Size Limit](https://github.com/ai/size-limit) (performance bud
 
 ## Usage
 1. Install Size Limit choosing the scenario that fits you better ([JS Application](https://github.com/ai/size-limit#js-applications), [Big Libraries](https://github.com/ai/size-limit#big-libraries) or [Small Libraries](https://github.com/ai/size-limit#small-libraries)).
-2. Add `size-build` script in your `package.json`. This script should perform changes neccessary to run `size-limit`. For example:
+2. By default this action will try to build your PR by running `build` [npm script](https://docs.npmjs.com/misc/scripts) located in your `package.json`. If something need to be done after dependencies are installed but before building `postinstall` npm script could be used. For example, using [lerna](https://github.com/lerna/lerna):
 ```json
 "scripts": {
-  "size-build": "npm run build",
-  "size": "npm run size-build && size-limit"
+  "postinstall": "lerna bootstrap",
+  "build": "lerna run build"
 },
 ```
-You can optionally specify `size-install` to define how dependencies should be installed, if not `yarn` or `npm install` will be executed by default.
-
 3. Define Size limit configuration. For example (inside `package.json`):
 ```json
 "size-limit": [
@@ -52,10 +50,18 @@ jobs:
       CI_JOB_NUMBER: 1
     steps:
       - uses: actions/checkout@v1
-      - uses: andresz1/size-limit-action@v1.2.2
+      - uses: andresz1/size-limit-action@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
+You can optionally specify a custom npm script to run instead of the default `build` adding a `build_script` option to the yml workflow shown above.
+
+```yaml
+with:
+  github_token: ${{ secrets.GITHUB_TOKEN }}
+  build_script: custom-build
+```
+
 5. You are now all set
 
 ## Feedback
