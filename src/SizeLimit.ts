@@ -9,6 +9,14 @@ interface IResult {
   total?: number;
 }
 
+const EmptyResult = {
+  name: "-",
+  size: 0,
+  running: 0,
+  loading: 0,
+  total: 0
+};
+
 class SizeLimit {
   static SIZE_RESULTS_HEADER = ["Path", "Size"];
 
@@ -130,16 +138,19 @@ class SizeLimit {
   ): Array<Array<string>> {
     const names = [...new Set([...Object.keys(base), ...Object.keys(current)])];
     const isSize = names.some(
-      (name: string) => current[name].total === undefined
+      (name: string) => current[name] && current[name].total === undefined
     );
     const header = isSize
       ? SizeLimit.SIZE_RESULTS_HEADER
       : SizeLimit.TIME_RESULTS_HEADER;
     const fields = names.map((name: string) => {
+      const baseResult = base[name] || EmptyResult;
+      const currentResult = current[name] || EmptyResult;
+
       if (isSize) {
-        return this.formatSizeResult(name, base[name], current[name]);
+        return this.formatSizeResult(name, baseResult, currentResult);
       }
-      return this.formatTimeResult(name, base[name], current[name]);
+      return this.formatTimeResult(name, baseResult, currentResult);
     });
 
     return [header, ...fields];
