@@ -14,6 +14,7 @@ class Term {
     let output = "";
 
     if (branch) {
+      await exec(`git fetch origin ${branch} --depth=1`);
       await exec(`git checkout -f ${branch}`);
     }
 
