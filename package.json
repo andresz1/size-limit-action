@@ -3,7 +3,7 @@
   "version": "1.3.0",
   "private": true,
   "description": "size-limit action",
-  "main": "lib/main.js",
+  "main": "dist/index.js",
   "license": "ISC",
   "scripts": {
     "format": "prettier --write **/*.ts",
