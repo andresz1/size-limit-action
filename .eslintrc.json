@@ -11,5 +11,8 @@
       "node": true,
       "es6": true,
       "jest/globals": true
+    },
+    "rules": {
+      "no-console": "off"
     }
   }

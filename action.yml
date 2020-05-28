@@ -5,9 +5,15 @@ branding:
   icon: 'activity'
   color: 'green'
 inputs:
-  access_token:
+  github_token:
     required: true
     description: 'a github access token'
+  build_script:
+    required: false
+    description: 'a custom npm script to build'
+  skip_step:
+    required: false
+    description: 'which step to skip, either "install" or "build"'
 runs:
   using: 'node12'
   main: 'dist/index.js'
