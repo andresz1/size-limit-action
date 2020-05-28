@@ -2013,6 +2013,23 @@ const Term_1 = __importDefault(__webpack_require__(733));
 const markdown_table_1 = __importDefault(__webpack_require__(366));
 const SIZE_LIMIT_URL = "https://github.com/ai/size-limit";
 const SIZE_LIMIT_HEADING = `## [size-limit](${SIZE_LIMIT_URL}) report`;
+const stateToEventMapping = {
+    COMMENTED: "COMMENT",
+    CHANGES_REQUESTED: "REQUEST_CHANGES"
+};
+function fetchPreviousReview(octokit, repo, pr) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const reviews = yield octokit.paginate(
+        // TODO: replace with octokit.pulls.listReviews when upgraded to v17
+        "GET /repos/:owner/:repo/pulls/:pull_number/reviews", Object.assign(Object.assign({}, repo), { 
+            // eslint-disable-next-line camelcase
+            pull_number: pr.number }));
+        const sizeLimitReviews = reviews.filter(review => review.body.startsWith(SIZE_LIMIT_HEADING));
+        return sizeLimitReviews.length > 0
+            ? sizeLimitReviews[sizeLimitReviews.length - 1]
+            : null;
+    });
+}
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -2022,7 +2039,7 @@ function run() {
                 throw new Error("No PR found. Only pull_request workflows are supported.");
             }
             const token = core_1.getInput("github_token");
-            const ignoreIdentical = core_1.getInput("ignore_identical");
+            const updateReview = core_1.getInput("updateReview");
             const skipStep = core_1.getInput("skip_step");
             const buildScript = core_1.getInput("build_script");
             const octokit = new github_1.GitHub(token);
@@ -2045,28 +2062,34 @@ function run() {
                 SIZE_LIMIT_HEADING,
                 markdown_table_1.default(limit.formatResults(base, current))
             ].join("\r\n");
-            if (ignoreIdentical) {
-                try {
-                    const { data: reviews } = yield octokit.pulls.listReviews(Object.assign(Object.assign({}, github_1.context.repo), { 
-                        // eslint-disable-next-line camelcase
-                        pull_number: number }));
-                    const sizeLimitReviews = reviews.filter(review => review.body.startsWith(SIZE_LIMIT_HEADING));
-                    // only look at the last review (it could return to a previous state which we would want to know about)
-                    if (sizeLimitReviews.length > 0 &&
-                        sizeLimitReviews[sizeLimitReviews.length - 1].body === body) {
-                        // The last review was the same, so we shouldn't repeat
-                        return;
-                    }
-                }
-                catch (error) {
-                    console.log("Failed to compare against previous reviews");
+            let previousReview = null;
+            let isReviewStateChanged = true;
+            try {
+                previousReview = yield fetchPreviousReview(octokit, repo, pr);
+                isReviewStateChanged =
+                    !previousReview || stateToEventMapping[previousReview.state] !== event;
+                if (!isReviewStateChanged && previousReview.body === body) {
+                    // The last review was the exact same, so we shouldn't repeat
+                    return;
                 }
             }
+            catch (error) {
+                console.log("Failed to compare against previous reviews");
+            }
             try {
-                octokit.pulls.createReview(Object.assign(Object.assign({}, repo), { 
-                    // eslint-disable-next-line camelcase
-                    pull_number: pr.number, event,
-                    body }));
+                if (updateReview && !isReviewStateChanged) {
+                    yield octokit.pulls.updateReview(Object.assign(Object.assign({}, repo), { 
+                        // eslint-disable-next-line camelcase
+                        pull_number: pr.number, 
+                        // eslint-disable-next-line camelcase
+                        review_id: previousReview.id, body }));
+                }
+                else {
+                    yield octokit.pulls.createReview(Object.assign(Object.assign({}, repo), { 
+                        // eslint-disable-next-line camelcase
+                        pull_number: pr.number, event,
+                        body }));
+                }
             }
             catch (error) {
                 console.log("Error creating PR review. This can happen for PR's originating from a fork without write permissions.");

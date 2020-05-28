@@ -14,9 +14,9 @@ inputs:
   skip_step:
     required: false
     description: 'which step to skip, either "install" or "build"'
-  ignore_identical:
+  update_review:
     required: false
-    description: 'whether or not identical reviews should be reposted on rebuild'
+    description: "will update the previous review if the status hasn't changed"
     default: false
 runs:
   using: 'node12'
