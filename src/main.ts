@@ -9,11 +9,19 @@ const SIZE_LIMIT_URL = "https://github.com/ai/size-limit";
 
 async function run() {
   try {
-    if (context.payload.pull_request === null) {
+    const { payload, issue } = context;
+    const pr = payload.pull_request;
+
+    if (!pr) {
       throw new Error(
         "No PR found. Only pull_request workflows are supported."
       );
     }
+
+    console.log(
+      `PR #${issue.number} is targetted at ${pr.base.ref} (${pr.base.sha})`
+    );
+    console.log(`base ${process.env.GITHUB_BASE_REF}`);
 
     const token = getInput("github_token");
     const skipStep = getInput("skip_step");
