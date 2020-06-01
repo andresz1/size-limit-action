@@ -9,7 +9,7 @@ const SIZE_LIMIT_URL = "https://github.com/ai/size-limit";
 
 async function run() {
   try {
-    const { payload, issue } = context;
+    const { payload, repo } = context;
     const pr = payload.pull_request;
 
     if (!pr) {
@@ -17,11 +17,6 @@ async function run() {
         "No PR found. Only pull_request workflows are supported."
       );
     }
-
-    console.log(
-      `PR #${issue.number} is targetted at ${pr.base.ref} (${pr.base.sha})`
-    );
-    console.log(`base ${process.env.GITHUB_BASE_REF}`);
 
     const token = getInput("github_token");
     const skipStep = getInput("skip_step");
@@ -36,7 +31,7 @@ async function run() {
       buildScript
     );
     const { output: baseOutput } = await term.execSizeLimit(
-      process.env.GITHUB_BASE_REF,
+      pr.base.ref,
       null,
       buildScript
     );
@@ -54,7 +49,6 @@ async function run() {
       throw error;
     }
 
-    const number = context.payload.pull_request.number;
     const event = status > 0 ? "REQUEST_CHANGES" : "COMMENT";
     const body = [
       `## [size-limit](${SIZE_LIMIT_URL}) report`,
@@ -63,9 +57,9 @@ async function run() {
 
     try {
       octokit.pulls.createReview({
-        ...context.repo,
+        ...repo,
         // eslint-disable-next-line camelcase
-        pull_number: number,
+        pull_number: pr.number,
         event,
         body
       });

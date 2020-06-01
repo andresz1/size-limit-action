@@ -2015,13 +2015,11 @@ const SIZE_LIMIT_URL = "https://github.com/ai/size-limit";
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const { payload, issue } = github_1.context;
+            const { payload, repo } = github_1.context;
             const pr = payload.pull_request;
             if (!pr) {
                 throw new Error("No PR found. Only pull_request workflows are supported.");
             }
-            console.log(`PR #${issue.number} is targetted at ${pr.base.ref} (${pr.base.sha})`);
-            console.log(`base ${process.env.GITHUB_BASE_REF}`);
             const token = core_1.getInput("github_token");
             const skipStep = core_1.getInput("skip_step");
             const buildScript = core_1.getInput("build_script");
@@ -2029,7 +2027,7 @@ function run() {
             const term = new Term_1.default();
             const limit = new SizeLimit_1.default();
             const { status, output } = yield term.execSizeLimit(null, skipStep, buildScript);
-            const { output: baseOutput } = yield term.execSizeLimit(process.env.GITHUB_BASE_REF, null, buildScript);
+            const { output: baseOutput } = yield term.execSizeLimit(pr.base.ref, null, buildScript);
             let base;
             let current;
             try {
@@ -2040,16 +2038,15 @@ function run() {
                 console.log("Error parsing size-limit output. The output should be a json.");
                 throw error;
             }
-            const number = github_1.context.payload.pull_request.number;
             const event = status > 0 ? "REQUEST_CHANGES" : "COMMENT";
             const body = [
                 `## [size-limit](${SIZE_LIMIT_URL}) report`,
                 markdown_table_1.default(limit.formatResults(base, current))
             ].join("\r\n");
             try {
-                octokit.pulls.createReview(Object.assign(Object.assign({}, github_1.context.repo), { 
+                octokit.pulls.createReview(Object.assign(Object.assign({}, repo), { 
                     // eslint-disable-next-line camelcase
-                    pull_number: number, event,
+                    pull_number: pr.number, event,
                     body }));
             }
             catch (error) {
