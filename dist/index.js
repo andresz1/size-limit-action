@@ -2015,9 +2015,13 @@ const SIZE_LIMIT_URL = "https://github.com/ai/size-limit";
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            if (github_1.context.payload.pull_request === null) {
+            const { payload, issue } = github_1.context;
+            const pr = payload.pull_request;
+            if (!pr) {
                 throw new Error("No PR found. Only pull_request workflows are supported.");
             }
+            console.log(`PR #${issue.number} is targetted at ${pr.base.ref} (${pr.base.sha})`);
+            console.log(`base ${process.env.GITHUB_BASE_REF}`);
             const token = core_1.getInput("github_token");
             const skipStep = core_1.getInput("skip_step");
             const buildScript = core_1.getInput("build_script");
@@ -10454,7 +10458,12 @@ class Term {
             const manager = has_yarn_1.default() ? "yarn" : "npm";
             let output = "";
             if (branch) {
-                yield exec_1.exec(`git fetch origin ${branch} --depth=1`);
+                try {
+                    yield exec_1.exec(`git fetch origin ${branch} --depth=1`);
+                }
+                catch (error) {
+                    console.log("Fetch failed", error.message);
+                }
                 yield exec_1.exec(`git checkout -f ${branch}`);
             }
             if (skipStep !== INSTALL_STEP && skipStep !== BUILD_STEP) {
