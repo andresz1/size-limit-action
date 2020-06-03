@@ -10455,7 +10455,6 @@ class Term {
             const manager = has_yarn_1.default() ? "yarn" : "npm";
             let output = "";
             if (branch) {
-                console.log('TEST', process.env.GITHUB_ACTOR, process.env.INPUT_REPOSITORY, process.env.GITHUB_REPOSITORY);
                 try {
                     yield exec_1.exec(`git fetch origin ${branch} --depth=1`);
                 }

@@ -14,7 +14,6 @@ class Term {
     let output = "";
 
     if (branch) {
-      console.log('TEST', process.env.GITHUB_ACTOR, process.env.INPUT_REPOSITORY, process.env.GITHUB_REPOSITORY);
       try {
         await exec(`git fetch origin ${branch} --depth=1`);
       } catch (error) {
