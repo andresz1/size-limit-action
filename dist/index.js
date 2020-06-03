@@ -2015,7 +2015,9 @@ const SIZE_LIMIT_URL = "https://github.com/ai/size-limit";
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            if (github_1.context.payload.pull_request === null) {
+            const { payload, repo } = github_1.context;
+            const pr = payload.pull_request;
+            if (!pr) {
                 throw new Error("No PR found. Only pull_request workflows are supported.");
             }
             const token = core_1.getInput("github_token");
@@ -2025,7 +2027,7 @@ function run() {
             const term = new Term_1.default();
             const limit = new SizeLimit_1.default();
             const { status, output } = yield term.execSizeLimit(null, skipStep, buildScript);
-            const { output: baseOutput } = yield term.execSizeLimit(process.env.GITHUB_BASE_REF, null, buildScript);
+            const { output: baseOutput } = yield term.execSizeLimit(pr.base.ref, null, buildScript);
             let base;
             let current;
             try {
@@ -2036,16 +2038,15 @@ function run() {
                 console.log("Error parsing size-limit output. The output should be a json.");
                 throw error;
             }
-            const number = github_1.context.payload.pull_request.number;
             const event = status > 0 ? "REQUEST_CHANGES" : "COMMENT";
             const body = [
                 `## [size-limit](${SIZE_LIMIT_URL}) report`,
                 markdown_table_1.default(limit.formatResults(base, current))
             ].join("\r\n");
             try {
-                octokit.pulls.createReview(Object.assign(Object.assign({}, github_1.context.repo), { 
+                octokit.pulls.createReview(Object.assign(Object.assign({}, repo), { 
                     // eslint-disable-next-line camelcase
-                    pull_number: number, event,
+                    pull_number: pr.number, event,
                     body }));
             }
             catch (error) {
@@ -10454,7 +10455,12 @@ class Term {
             const manager = has_yarn_1.default() ? "yarn" : "npm";
             let output = "";
             if (branch) {
-                yield exec_1.exec(`git fetch origin ${branch} --depth=1`);
+                try {
+                    yield exec_1.exec(`git fetch origin ${branch} --depth=1`);
+                }
+                catch (error) {
+                    console.log("Fetch failed", error.message);
+                }
                 yield exec_1.exec(`git checkout -f ${branch}`);
             }
             if (skipStep !== INSTALL_STEP && skipStep !== BUILD_STEP) {

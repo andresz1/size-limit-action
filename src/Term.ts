@@ -14,7 +14,12 @@ class Term {
     let output = "";
 
     if (branch) {
-      await exec(`git fetch origin ${branch} --depth=1`);
+      try {
+        await exec(`git fetch origin ${branch} --depth=1`);
+      } catch (error) {
+        console.log("Fetch failed", error.message);
+      }
+
       await exec(`git checkout -f ${branch}`);
     }
 
