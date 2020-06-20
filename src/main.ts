@@ -50,9 +50,8 @@ async function run() {
       throw error;
     }
 
-    const failed = status > 0;// ? "REQUEST_CHANGES" : "COMMENT";
-    if (failed) {
-      setFailed("Failed");
+    if (status > 0) {
+      setFailed("Size limit has been exceeded.");
     }
     const body = [
       SIZE_LIMIT_HEADING,
@@ -68,9 +67,9 @@ async function run() {
       comment.body.startsWith(SIZE_LIMIT_HEADING)
     );
 
-    if (sizeLimitComment == undefined) {
+    if (!sizeLimitComment) {
       try {
-        octokit.issues.createComment({
+        await octokit.issues.createComment({
           ...repo,
           // eslint-disable-next-line camelcase
           issue_number: pr.number,
@@ -83,7 +82,7 @@ async function run() {
       }
     } else {
       try {
-        octokit.issues.updateComment({
+        await octokit.issues.updateComment({
           ...repo,
           // eslint-disable-next-line camelcase
           comment_id: sizeLimitComment.id,

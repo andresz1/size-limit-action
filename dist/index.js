@@ -2039,9 +2039,8 @@ function run() {
                 console.log("Error parsing size-limit output. The output should be a json.");
                 throw error;
             }
-            const failed = status > 0; // ? "REQUEST_CHANGES" : "COMMENT";
-            if (failed) {
-                core_1.setFailed("Failed");
+            if (status > 0) {
+                core_1.setFailed("Size limit has been exceeded.");
             }
             const body = [
                 SIZE_LIMIT_HEADING,
@@ -2049,9 +2048,9 @@ function run() {
             ].join("\r\n");
             const { data: commentList } = yield octokit.issues.listComments(Object.assign(Object.assign({}, repo), { issue_number: pr.number }));
             const sizeLimitComment = commentList.find(comment => comment.body.startsWith(SIZE_LIMIT_HEADING));
-            if (sizeLimitComment == undefined) {
+            if (!sizeLimitComment) {
                 try {
-                    octokit.issues.createComment(Object.assign(Object.assign({}, repo), { 
+                    yield octokit.issues.createComment(Object.assign(Object.assign({}, repo), { 
                         // eslint-disable-next-line camelcase
                         issue_number: pr.number, body }));
                 }
@@ -2061,7 +2060,7 @@ function run() {
             }
             else {
                 try {
-                    octokit.issues.updateComment(Object.assign(Object.assign({}, repo), { 
+                    yield octokit.issues.updateComment(Object.assign(Object.assign({}, repo), { 
                         // eslint-disable-next-line camelcase
                         comment_id: sizeLimitComment.id, body }));
                 }
