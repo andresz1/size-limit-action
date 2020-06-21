@@ -14,10 +14,6 @@ inputs:
   skip_step:
     required: false
     description: 'which step to skip, either "install" or "build"'
-  update_review:
-    required: false
-    description: "will update the previous review if the status hasn't changed"
-    default: false
 runs:
   using: 'node12'
   main: 'dist/index.js'
