@@ -1,5 +1,8 @@
 import { getInput, setFailed } from "@actions/core";
 import { context, GitHub } from "@actions/github";
+
+import { Octokit } from "@octokit/rest";
+
 // @ts-ignore
 import table from "markdown-table";
 import Term from "./Term";
@@ -7,6 +10,30 @@ import SizeLimit from "./SizeLimit";
 
 const SIZE_LIMIT_URL = "https://github.com/ai/size-limit";
 const SIZE_LIMIT_HEADING = `## [size-limit](${SIZE_LIMIT_URL}) report`;
+
+async function fetchPreviousComment(
+  octokit: GitHub,
+  repo: { owner: string; repo: string },
+  pr: { number: number }
+) {
+
+  const commentList: Octokit.IssuesListCommentsResponse = await octokit.paginate(
+    // TODO: replace with octokit.issues.listComments when upgraded to v17
+    //octokit.issues.listComments, {
+    "GET /repos/:owner/:repo/issues/:issue_number/comments",
+    {
+      ...repo,
+      // eslint-disable-next-line camelcase
+      issue_number: pr.number
+    });
+
+
+  const sizeLimitComment = commentList.find(
+    (comment: Octokit.IssuesListCommentsResponseItem) =>
+    comment.body.startsWith(SIZE_LIMIT_HEADING)
+  );
+  return !sizeLimitComment ? null : sizeLimitComment;
+}
 
 async function run() {
   try {
@@ -58,14 +85,7 @@ async function run() {
       table(limit.formatResults(base, current))
     ].join("\r\n");
 
-    const { data: commentList } = await octokit.issues.listComments({
-      ...repo,
-      issue_number: pr.number
-    });
-
-    const sizeLimitComment = commentList.find(comment =>
-      comment.body.startsWith(SIZE_LIMIT_HEADING)
-    );
+    const sizeLimitComment = await fetchPreviousComment(octokit, repo, pr);
 
     if (!sizeLimitComment) {
       try {
