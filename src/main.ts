@@ -13,9 +13,8 @@ async function fetchPreviousComment(
   repo: { owner: string; repo: string },
   pr: { number: number }
 ) {
+  // TODO: replace with octokit.issues.listComments when upgraded to v17
   const commentList = await octokit.paginate(
-    // TODO: replace with octokit.issues.listComments when upgraded to v17
-    //octokit.issues.listComments, {
     "GET /repos/:owner/:repo/issues/:issue_number/comments",
     {
       ...repo,

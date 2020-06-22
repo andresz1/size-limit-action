@@ -2015,10 +2015,8 @@ const SIZE_LIMIT_URL = "https://github.com/ai/size-limit";
 const SIZE_LIMIT_HEADING = `## [size-limit](${SIZE_LIMIT_URL}) report`;
 function fetchPreviousComment(octokit, repo, pr) {
     return __awaiter(this, void 0, void 0, function* () {
-        const commentList = yield octokit.paginate(
         // TODO: replace with octokit.issues.listComments when upgraded to v17
-        //octokit.issues.listComments, {
-        "GET /repos/:owner/:repo/issues/:issue_number/comments", Object.assign(Object.assign({}, repo), { 
+        const commentList = yield octokit.paginate("GET /repos/:owner/:repo/issues/:issue_number/comments", Object.assign(Object.assign({}, repo), { 
             // eslint-disable-next-line camelcase
             issue_number: pr.number }));
         const sizeLimitComment = commentList.find(comment => comment.body.startsWith(SIZE_LIMIT_HEADING));
