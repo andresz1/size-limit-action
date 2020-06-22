@@ -1,8 +1,5 @@
 import { getInput, setFailed } from "@actions/core";
 import { context, GitHub } from "@actions/github";
-
-import { Octokit } from "@octokit/rest";
-
 // @ts-ignore
 import table from "markdown-table";
 import Term from "./Term";
@@ -16,8 +13,7 @@ async function fetchPreviousComment(
   repo: { owner: string; repo: string },
   pr: { number: number }
 ) {
-
-  const commentList: Octokit.IssuesListCommentsResponse = await octokit.paginate(
+  const commentList = await octokit.paginate(
     // TODO: replace with octokit.issues.listComments when upgraded to v17
     //octokit.issues.listComments, {
     "GET /repos/:owner/:repo/issues/:issue_number/comments",
@@ -25,11 +21,10 @@ async function fetchPreviousComment(
       ...repo,
       // eslint-disable-next-line camelcase
       issue_number: pr.number
-    });
+    }
+  );
 
-
-  const sizeLimitComment = commentList.find(
-    (comment: Octokit.IssuesListCommentsResponseItem) =>
+  const sizeLimitComment = commentList.find(comment =>
     comment.body.startsWith(SIZE_LIMIT_HEADING)
   );
   return !sizeLimitComment ? null : sizeLimitComment;
@@ -77,9 +72,6 @@ async function run() {
       throw error;
     }
 
-    if (status > 0) {
-      setFailed("Size limit has been exceeded.");
-    }
     const body = [
       SIZE_LIMIT_HEADING,
       table(limit.formatResults(base, current))
@@ -113,6 +105,10 @@ async function run() {
           "Error updating comment. This can happen for PR's originating from a fork without write permissions."
         );
       }
+    }
+
+    if (status > 0) {
+      setFailed("Size limit has been exceeded.");
     }
   } catch (error) {
     setFailed(error.message);
