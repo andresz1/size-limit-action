@@ -10507,7 +10507,7 @@ class SizeLimitReporter {
     getBody(isInvalid, diffResults) {
         return [
             SizeLimitReporter.HEADING,
-            `- *Status:* ${isInvalid ? "❌" : "✅"}`,
+            `**Status:** ${isInvalid ? "❌" : "✅"}`,
             `<details open>`,
             `<summary>Toggle table</summary>`,
             "<p>",
