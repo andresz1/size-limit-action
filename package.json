@@ -6,10 +6,13 @@
   "main": "dist/index.js",
   "license": "ISC",
   "scripts": {
+    "build": "tsc",
     "format": "prettier --write **/*.ts",
+    "format-check": "prettier --check **/*.ts",
     "lint": "eslint src/**/*.ts",
+    "pack": "ncc build",
     "test": "jest",
-    "build": "ncc build src/main.ts -o dist",
+    "all": "npm run build && npm run format && npm run lint && npm run pack && npm test",
     "size-build": "npm run build",
     "size": "npm run size-build && size-limit"
   },

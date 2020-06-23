@@ -13,9 +13,9 @@ class SizeLimit {
   }
 
   async exec(
-    ref?: string,
-    skipStep?: string,
-    buildScript?: string
+    ref?: string | null,
+    skipStep?: string | null,
+    buildScript?: string | null
   ): Promise<{ status: number; results: { [name: string]: Result } }> {
     const manager = hasYarn() ? "yarn" : "npm";
     let output = "";

@@ -24,7 +24,7 @@ class SizeLimitParser {
     return bytes.format(size, { unitSeparator: " " });
   }
 
-  private formatTime(seconds: number): string {
+  private formatTime(seconds: number = 0): string {
     if (seconds >= 1) {
       return `${Math.ceil(seconds * 10) / 10} s`;
     }
