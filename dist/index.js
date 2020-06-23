@@ -10507,10 +10507,14 @@ class SizeLimitReporter {
     getBody(isInvalid, diffResults) {
         return [
             SizeLimitReporter.HEADING,
-            `Status: ${isInvalid ? "❌" : "✅"}`,
+            `- *Status:* ${isInvalid ? "❌" : "✅"}`,
             `<details open>`,
-            `<summary>Table</summary>`,
+            `<summary>Toggle table</summary>`,
+            "<p>",
+            "",
             markdown_table_1.default(diffResults),
+            "",
+            "</p>",
             `</details>`
         ].join("\r\n");
     }
@@ -10537,7 +10541,7 @@ class SizeLimitReporter {
         });
     }
 }
-SizeLimitReporter.HEADING = "## 📦 size-limit report";
+SizeLimitReporter.HEADING = "## size-limit report 📦";
 exports.default = SizeLimitReporter;
 
 

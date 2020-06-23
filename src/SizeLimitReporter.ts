@@ -4,7 +4,7 @@ import table from "markdown-table";
 class SizeLimitReporter {
   octokit: GitHub;
 
-  static HEADING = "## 📦 size-limit report";
+  static HEADING = "## size-limit report 📦";
 
   constructor(octokit: GitHub) {
     this.octokit = octokit;
@@ -13,10 +13,14 @@ class SizeLimitReporter {
   getBody(isInvalid: boolean, diffResults: Array<Array<string>>): string {
     return [
       SizeLimitReporter.HEADING,
-      `Status: ${isInvalid ? "❌" : "✅"}`,
+      `- *Status:* ${isInvalid ? "❌" : "✅"}`,
       `<details open>`,
-      `<summary>Table</summary>`,
+      `<summary>Toggle table</summary>`,
+      "<p>",
+      "",
       table(diffResults),
+      "",
+      "</p>",
       `</details>`
     ].join("\r\n");
   }
