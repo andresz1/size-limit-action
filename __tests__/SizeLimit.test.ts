@@ -1,8 +1,8 @@
-import SizeLimit from "./SizeLimit";
+import SizeLimitParser from "../src/SizeLimitParser";
 
 describe("SizeLimit", () => {
   test("should parse size-limit output", () => {
-    const limit = new SizeLimit();
+    const parser = new SizeLimitParser();
     const output = JSON.stringify([
       {
         name: "dist/index.js",
@@ -13,7 +13,7 @@ describe("SizeLimit", () => {
       }
     ]);
 
-    expect(limit.parseResults(output)).toEqual({
+    expect(parser.parse(output)).toEqual({
       "dist/index.js": {
         name: "dist/index.js",
         loading: 2.1658984375,
@@ -25,7 +25,7 @@ describe("SizeLimit", () => {
   });
 
   test("should parse size-limit without times output", () => {
-    const limit = new SizeLimit();
+    const parser = new SizeLimitParser();
     const output = JSON.stringify([
       {
         name: "dist/index.js",
@@ -34,7 +34,7 @@ describe("SizeLimit", () => {
       }
     ]);
 
-    expect(limit.parseResults(output)).toEqual({
+    expect(parser.parse(output)).toEqual({
       "dist/index.js": {
         name: "dist/index.js",
         size: 110894
@@ -43,7 +43,7 @@ describe("SizeLimit", () => {
   });
 
   test("should format size-limit results", () => {
-    const limit = new SizeLimit();
+    const parser = new SizeLimitParser();
     const base = {
       "dist/index.js": {
         name: "dist/index.js",
@@ -63,8 +63,8 @@ describe("SizeLimit", () => {
       }
     };
 
-    expect(limit.formatResults(base, current)).toEqual([
-      SizeLimit.TIME_RESULTS_HEADER,
+    expect(parser.diff(base, current)).toEqual([
+      SizeLimitParser.TIME_RESULTS_HEADER,
       [
         "dist/index.js",
         "98.53 KB (-9.92% 🔽)",
@@ -76,7 +76,7 @@ describe("SizeLimit", () => {
   });
 
   test("should format size-limit without times results", () => {
-    const limit = new SizeLimit();
+    const parser = new SizeLimitParser();
     const base = {
       "dist/index.js": {
         name: "dist/index.js",
@@ -90,14 +90,14 @@ describe("SizeLimit", () => {
       }
     };
 
-    expect(limit.formatResults(base, current)).toEqual([
-      SizeLimit.SIZE_RESULTS_HEADER,
+    expect(parser.diff(base, current)).toEqual([
+      SizeLimitParser.SIZE_RESULTS_HEADER,
       ["dist/index.js", "98.53 KB (-9.92% 🔽)"]
     ]);
   });
 
   test("should format size-limit with new section", () => {
-    const limit = new SizeLimit();
+    const parser = new SizeLimitParser();
     const base = {
       "dist/index.js": {
         name: "dist/index.js",
@@ -115,15 +115,15 @@ describe("SizeLimit", () => {
       }
     };
 
-    expect(limit.formatResults(base, current)).toEqual([
-      SizeLimit.SIZE_RESULTS_HEADER,
+    expect(parser.diff(base, current)).toEqual([
+      SizeLimitParser.SIZE_RESULTS_HEADER,
       ["dist/index.js", "98.53 KB (-9.92% 🔽)"],
       ["dist/new.js", "98.53 KB (+100% 🔺)"]
     ]);
   });
 
   test("should format size-limit with deleted section", () => {
-    const limit = new SizeLimit();
+    const parser = new SizeLimitParser();
     const base = {
       "dist/index.js": {
         name: "dist/index.js",
@@ -137,8 +137,8 @@ describe("SizeLimit", () => {
       }
     };
 
-    expect(limit.formatResults(base, current)).toEqual([
-      SizeLimit.SIZE_RESULTS_HEADER,
+    expect(parser.diff(base, current)).toEqual([
+      SizeLimitParser.SIZE_RESULTS_HEADER,
       ["dist/index.js", "0 B (-100%)"],
       ["dist/new.js", "98.53 KB (+100% 🔺)"]
     ]);
