@@ -16,7 +16,7 @@
   "size-limit": [
     {
       "path": "dist/index.js",
-      "limit": "4500 KB"
+      "limit": "4500 ms"
     }
   ],
   "dependencies": {
@@ -43,6 +43,7 @@
     "ts-jest": "^24.2.0",
     "typescript": "^3.6.4",
     "size-limit": "^4.3.1",
-    "@size-limit/file": "^4.3.1"
+    "@size-limit/file": "^4.3.1",
+    "@size-limit/time": "^4.3.1"
   }
 }
