@@ -2005,7 +2005,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const fs_1 = __webpack_require__(747);
 const core_1 = __webpack_require__(470);
 const github_1 = __webpack_require__(469);
 // @ts-ignore
@@ -2020,7 +2019,7 @@ function fetchPreviousComment(octokit, repo, pr) {
         const commentList = yield octokit.paginate("GET /repos/:owner/:repo/issues/:issue_number/comments", Object.assign(Object.assign({}, repo), { 
             // eslint-disable-next-line camelcase
             issue_number: pr.number }));
-        const sizeLimitComment = commentList.find((comment) => comment.body.startsWith(SIZE_LIMIT_HEADING));
+        const sizeLimitComment = commentList.find(comment => comment.body.startsWith(SIZE_LIMIT_HEADING));
         return !sizeLimitComment ? null : sizeLimitComment;
     });
 }
@@ -2040,28 +2039,16 @@ function run() {
             const octokit = new github_1.GitHub(token);
             const term = new Term_1.default();
             const limit = new SizeLimit_1.default();
-            let output;
-            let status;
-            console.log("paths", baseSizePath, headSizePath);
-            if (headSizePath) {
-                output = yield fs_1.promises.readFile(headSizePath, "utf8");
-            }
-            else {
-                const sizeLimit = yield term.execSizeLimit(null, skipStep, buildScript);
-                output = sizeLimit.output;
-                status = sizeLimit.status;
-            }
-            let baseOutput;
-            if (baseSizePath) {
-                baseOutput = yield fs_1.promises.readFile(headSizePath, "utf8");
-            }
-            else {
-                const sizeLimit = yield term.execSizeLimit(pr.base.ref, null, buildScript);
-                baseOutput = sizeLimit.output;
-            }
+            const { status, output } = yield term.getSizeLimit({
+                skipStep,
+                buildScript
+            }, headSizePath);
+            const { output: baseOutput } = yield term.getSizeLimit({
+                branch: pr.base.ref,
+                buildScript
+            }, baseSizePath);
             let base;
             let current;
-            console.log("outputs", output.length, baseOutput.length);
             try {
                 base = limit.parseResults(baseOutput);
                 current = limit.parseResults(output);
@@ -2072,7 +2059,7 @@ function run() {
             }
             const body = [
                 SIZE_LIMIT_HEADING,
-                markdown_table_1.default(limit.formatResults(base, current)),
+                markdown_table_1.default(limit.formatResults(base, current))
             ].join("\r\n");
             const sizeLimitComment = yield fetchPreviousComment(octokit, repo, pr);
             if (!sizeLimitComment) {
@@ -10491,12 +10478,26 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const fs_1 = __webpack_require__(747);
 const exec_1 = __webpack_require__(986);
 const has_yarn_1 = __importDefault(__webpack_require__(931));
 const INSTALL_STEP = "install";
 const BUILD_STEP = "build";
 class Term {
-    execSizeLimit(branch, skipStep, buildScript) {
+    getSizeLimit(execParams, filePath) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return filePath
+                ? this.readSizeLimitFile(filePath)
+                : this.execSizeLimit(execParams);
+        });
+    }
+    readSizeLimitFile(filePath) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const output = yield fs_1.promises.readFile(filePath, "utf8");
+            return { output };
+        });
+    }
+    execSizeLimit({ branch, skipStep, buildScript }) {
         return __awaiter(this, void 0, void 0, function* () {
             const manager = has_yarn_1.default() ? "yarn" : "npm";
             let output = "";

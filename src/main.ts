@@ -1,4 +1,3 @@
-import { promises as fs } from "fs";
 import { getInput, setFailed } from "@actions/core";
 import { context, GitHub } from "@actions/github";
 // @ts-ignore
@@ -20,11 +19,11 @@ async function fetchPreviousComment(
     {
       ...repo,
       // eslint-disable-next-line camelcase
-      issue_number: pr.number,
+      issue_number: pr.number
     }
   );
 
-  const sizeLimitComment = commentList.find((comment) =>
+  const sizeLimitComment = commentList.find(comment =>
     comment.body.startsWith(SIZE_LIMIT_HEADING)
   );
   return !sizeLimitComment ? null : sizeLimitComment;
@@ -50,35 +49,24 @@ async function run() {
     const term = new Term();
     const limit = new SizeLimit();
 
-    let output: string;
-    let status;
-
-    console.log("paths", baseSizePath, headSizePath);
-
-    if (headSizePath) {
-      output = await fs.readFile(headSizePath, "utf8");
-    } else {
-      const sizeLimit = await term.execSizeLimit(null, skipStep, buildScript);
-      output = sizeLimit.output;
-      status = sizeLimit.status;
-    }
-
-    let baseOutput: string;
-    if (baseSizePath) {
-      baseOutput = await fs.readFile(headSizePath, "utf8");
-    } else {
-      const sizeLimit = await term.execSizeLimit(
-        pr.base.ref,
-        null,
+    const { status, output } = await term.getSizeLimit(
+      {
+        skipStep,
         buildScript
-      );
-      baseOutput = sizeLimit.output;
-    }
+      },
+      headSizePath
+    );
+
+    const { output: baseOutput } = await term.getSizeLimit(
+      {
+        branch: pr.base.ref,
+        buildScript
+      },
+      baseSizePath
+    );
 
     let base;
     let current;
-
-    console.log("outputs", output.length, baseOutput.length);
 
     try {
       base = limit.parseResults(baseOutput);
@@ -92,7 +80,7 @@ async function run() {
 
     const body = [
       SIZE_LIMIT_HEADING,
-      table(limit.formatResults(base, current)),
+      table(limit.formatResults(base, current))
     ].join("\r\n");
 
     const sizeLimitComment = await fetchPreviousComment(octokit, repo, pr);
@@ -103,7 +91,7 @@ async function run() {
           ...repo,
           // eslint-disable-next-line camelcase
           issue_number: pr.number,
-          body,
+          body
         });
       } catch (error) {
         console.log(
@@ -116,7 +104,7 @@ async function run() {
           ...repo,
           // eslint-disable-next-line camelcase
           comment_id: sizeLimitComment.id,
-          body,
+          body
         });
       } catch (error) {
         console.log(

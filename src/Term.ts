@@ -1,15 +1,35 @@
+import { promises as fs } from "fs";
 import { exec } from "@actions/exec";
 import hasYarn from "has-yarn";
 
 const INSTALL_STEP = "install";
 const BUILD_STEP = "build";
 
+interface ISizeLimitParams {
+  branch?: string;
+  skipStep?: string;
+  buildScript?: string;
+}
 class Term {
-  async execSizeLimit(
-    branch?: string,
-    skipStep?: string,
-    buildScript?: string
-  ): Promise<{ status: number; output: string }> {
+  async getSizeLimit(
+    execParams: ISizeLimitParams,
+    filePath?: string
+  ): Promise<{ status?: number; output: string }> {
+    return filePath
+      ? this.readSizeLimitFile(filePath)
+      : this.execSizeLimit(execParams);
+  }
+
+  async readSizeLimitFile(filePath: string): Promise<{ output: string }> {
+    const output = await fs.readFile(filePath, "utf8");
+    return { output };
+  }
+
+  async execSizeLimit({
+    branch,
+    skipStep,
+    buildScript
+  }: ISizeLimitParams): Promise<{ status: number; output: string }> {
     const manager = hasYarn() ? "yarn" : "npm";
     let output = "";
 
