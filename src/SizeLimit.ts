@@ -4,6 +4,7 @@ import bytes from "bytes";
 interface IResult {
   name: string;
   size: number;
+  passed?: boolean;
   running?: number;
   loading?: number;
   total?: number;
@@ -124,6 +125,7 @@ class SizeLimit {
           [result.name]: {
             name: result.name,
             size: +result.size,
+            passed: result.passed,
             ...time
           }
         };

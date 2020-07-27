@@ -2082,7 +2082,8 @@ function run() {
                     console.log("Error updating comment. This can happen for PR's originating from a fork without write permissions.");
                 }
             }
-            if (status > 0) {
+            const withinLimit = Object.values(current).every(({ passed }) => passed !== null && passed !== void 0 ? passed : true);
+            if (status > 0 || !withinLimit) {
                 core_1.setFailed("Size limit has been exceeded.");
             }
         }
@@ -9313,7 +9314,7 @@ class SizeLimit {
                     total: loading + running
                 };
             }
-            return Object.assign(Object.assign({}, current), { [result.name]: Object.assign({ name: result.name, size: +result.size }, time) });
+            return Object.assign(Object.assign({}, current), { [result.name]: Object.assign({ name: result.name, size: +result.size, passed: result.passed }, time) });
         }, {});
     }
     formatResults(base, current) {

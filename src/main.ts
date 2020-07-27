@@ -113,7 +113,10 @@ async function run() {
       }
     }
 
-    if (status > 0) {
+    const withinLimit = Object.values(current).every(
+      ({ passed }) => passed ?? true
+    );
+    if (status > 0 || !withinLimit) {
       setFailed("Size limit has been exceeded.");
     }
   } catch (error) {
