@@ -20,11 +20,11 @@ async function fetchPreviousComment(
     {
       ...repo,
       // eslint-disable-next-line camelcase
-      issue_number: pr.number
+      issue_number: pr.number,
     }
   );
 
-  const sizeLimitComment = commentList.find(comment =>
+  const sizeLimitComment = commentList.find((comment) =>
     comment.body.startsWith(SIZE_LIMIT_HEADING)
   );
   return !sizeLimitComment ? null : sizeLimitComment;
@@ -53,6 +53,8 @@ async function run() {
     let output: string;
     let status;
 
+    console.log("paths", baseSizePath, headSizePath);
+
     if (headSizePath) {
       output = await fs.readFile(headSizePath, "utf8");
     } else {
@@ -76,6 +78,8 @@ async function run() {
     let base;
     let current;
 
+    console.log("outputs", output.length, baseOutput.length);
+
     try {
       base = limit.parseResults(baseOutput);
       current = limit.parseResults(output);
@@ -88,7 +92,7 @@ async function run() {
 
     const body = [
       SIZE_LIMIT_HEADING,
-      table(limit.formatResults(base, current))
+      table(limit.formatResults(base, current)),
     ].join("\r\n");
 
     const sizeLimitComment = await fetchPreviousComment(octokit, repo, pr);
@@ -99,7 +103,7 @@ async function run() {
           ...repo,
           // eslint-disable-next-line camelcase
           issue_number: pr.number,
-          body
+          body,
         });
       } catch (error) {
         console.log(
@@ -112,7 +116,7 @@ async function run() {
           ...repo,
           // eslint-disable-next-line camelcase
           comment_id: sizeLimitComment.id,
-          body
+          body,
         });
       } catch (error) {
         console.log(
