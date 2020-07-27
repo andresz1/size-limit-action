@@ -14,6 +14,12 @@ inputs:
   skip_step:
     required: false
     description: 'which step to skip, either "install" or "build"'
+  base_size_path:
+    required: false
+    description: 'path to base branch size file, when set used directly'
+  head_size_path:
+    required: false
+    description: 'path to base branch size file, when set used directly'
 runs:
   using: 'node12'
   main: 'dist/index.js'

@@ -1,3 +1,4 @@
+import { promises as fs } from "fs";
 import { getInput, setFailed } from "@actions/core";
 import { context, GitHub } from "@actions/github";
 // @ts-ignore
@@ -43,20 +44,34 @@ async function run() {
     const token = getInput("github_token");
     const skipStep = getInput("skip_step");
     const buildScript = getInput("build_script");
+    const baseSizePath = getInput("base_size_path");
+    const headSizePath = getInput("head_size_path");
     const octokit = new GitHub(token);
     const term = new Term();
     const limit = new SizeLimit();
 
-    const { status, output } = await term.execSizeLimit(
-      null,
-      skipStep,
-      buildScript
-    );
-    const { output: baseOutput } = await term.execSizeLimit(
-      pr.base.ref,
-      null,
-      buildScript
-    );
+    let output: string;
+    let status;
+
+    if (headSizePath) {
+      output = await fs.readFile(headSizePath, "utf8");
+    } else {
+      const sizeLimit = await term.execSizeLimit(null, skipStep, buildScript);
+      output = sizeLimit.output;
+      status = sizeLimit.status;
+    }
+
+    let baseOutput: string;
+    if (baseSizePath) {
+      baseOutput = await fs.readFile(headSizePath, "utf8");
+    } else {
+      const sizeLimit = await term.execSizeLimit(
+        pr.base.ref,
+        null,
+        buildScript
+      );
+      baseOutput = sizeLimit.output;
+    }
 
     let base;
     let current;
