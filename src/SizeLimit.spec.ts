@@ -16,6 +16,7 @@ describe("SizeLimit", () => {
     expect(limit.parseResults(output)).toEqual({
       "dist/index.js": {
         name: "dist/index.js",
+        passed: true,
         loading: 2.1658984375,
         running: 0.10210999999999999,
         size: 110894,
@@ -37,6 +38,7 @@ describe("SizeLimit", () => {
     expect(limit.parseResults(output)).toEqual({
       "dist/index.js": {
         name: "dist/index.js",
+        passed: true,
         size: 110894
       }
     });
