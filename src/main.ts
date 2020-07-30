@@ -1,33 +1,8 @@
 import { getInput, setFailed } from "@actions/core";
 import { context, GitHub } from "@actions/github";
-// @ts-ignore
-import table from "markdown-table";
-import Term from "./Term";
 import SizeLimit from "./SizeLimit";
-
-const SIZE_LIMIT_URL = "https://github.com/ai/size-limit";
-const SIZE_LIMIT_HEADING = `## [size-limit](${SIZE_LIMIT_URL}) report`;
-
-async function fetchPreviousComment(
-  octokit: GitHub,
-  repo: { owner: string; repo: string },
-  pr: { number: number }
-) {
-  // TODO: replace with octokit.issues.listComments when upgraded to v17
-  const commentList = await octokit.paginate(
-    "GET /repos/:owner/:repo/issues/:issue_number/comments",
-    {
-      ...repo,
-      // eslint-disable-next-line camelcase
-      issue_number: pr.number
-    }
-  );
-
-  const sizeLimitComment = commentList.find(comment =>
-    comment.body.startsWith(SIZE_LIMIT_HEADING)
-  );
-  return !sizeLimitComment ? null : sizeLimitComment;
-}
+import SizeLimitParser from "./SizeLimitParser";
+import SizeLimitReporter from "./SizeLimitReporter";
 
 async function run() {
   try {
@@ -44,70 +19,29 @@ async function run() {
     const skipStep = getInput("skip_step");
     const buildScript = getInput("build_script");
     const octokit = new GitHub(token);
-    const term = new Term();
-    const limit = new SizeLimit();
+    const parser = new SizeLimitParser();
+    const limit = new SizeLimit(parser);
+    const reporter = new SizeLimitReporter(octokit);
 
-    const { status, output } = await term.execSizeLimit(
-      null,
-      skipStep,
-      buildScript
-    );
-    const { output: baseOutput } = await term.execSizeLimit(
+    const { status, results } = await limit.exec(null, skipStep, buildScript);
+    const { results: baseResults } = await limit.exec(
       pr.base.ref,
       null,
       buildScript
     );
-
-    let base;
-    let current;
+    const isInvalid = status > 0;
+    const diffResults = parser.diff(baseResults, results);
 
     try {
-      base = limit.parseResults(baseOutput);
-      current = limit.parseResults(output);
+      await reporter.comment(repo, pr.number, isInvalid, diffResults);
     } catch (error) {
       console.log(
-        "Error parsing size-limit output. The output should be a json."
+        "Error posting comment. This can happen for PR's originating from a fork without write permissions."
       );
-      throw error;
     }
 
-    const body = [
-      SIZE_LIMIT_HEADING,
-      table(limit.formatResults(base, current))
-    ].join("\r\n");
-
-    const sizeLimitComment = await fetchPreviousComment(octokit, repo, pr);
-
-    if (!sizeLimitComment) {
-      try {
-        await octokit.issues.createComment({
-          ...repo,
-          // eslint-disable-next-line camelcase
-          issue_number: pr.number,
-          body
-        });
-      } catch (error) {
-        console.log(
-          "Error creating comment. This can happen for PR's originating from a fork without write permissions."
-        );
-      }
-    } else {
-      try {
-        await octokit.issues.updateComment({
-          ...repo,
-          // eslint-disable-next-line camelcase
-          comment_id: sizeLimitComment.id,
-          body
-        });
-      } catch (error) {
-        console.log(
-          "Error updating comment. This can happen for PR's originating from a fork without write permissions."
-        );
-      }
-    }
-
-    if (status > 0) {
-      setFailed("Size limit has been exceeded.");
+    if (isInvalid) {
+      throw new Error("Size limit has been exceeded.");
     }
   } catch (error) {
     setFailed(error.message);

@@ -2007,22 +2007,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const core_1 = __webpack_require__(470);
 const github_1 = __webpack_require__(469);
-// @ts-ignore
-const markdown_table_1 = __importDefault(__webpack_require__(366));
-const Term_1 = __importDefault(__webpack_require__(733));
 const SizeLimit_1 = __importDefault(__webpack_require__(617));
-const SIZE_LIMIT_URL = "https://github.com/ai/size-limit";
-const SIZE_LIMIT_HEADING = `## [size-limit](${SIZE_LIMIT_URL}) report`;
-function fetchPreviousComment(octokit, repo, pr) {
-    return __awaiter(this, void 0, void 0, function* () {
-        // TODO: replace with octokit.issues.listComments when upgraded to v17
-        const commentList = yield octokit.paginate("GET /repos/:owner/:repo/issues/:issue_number/comments", Object.assign(Object.assign({}, repo), { 
-            // eslint-disable-next-line camelcase
-            issue_number: pr.number }));
-        const sizeLimitComment = commentList.find(comment => comment.body.startsWith(SIZE_LIMIT_HEADING));
-        return !sizeLimitComment ? null : sizeLimitComment;
-    });
-}
+const SizeLimitParser_1 = __importDefault(__webpack_require__(502));
+const SizeLimitReporter_1 = __importDefault(__webpack_require__(722));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -2035,47 +2022,21 @@ function run() {
             const skipStep = core_1.getInput("skip_step");
             const buildScript = core_1.getInput("build_script");
             const octokit = new github_1.GitHub(token);
-            const term = new Term_1.default();
-            const limit = new SizeLimit_1.default();
-            const { status, output } = yield term.execSizeLimit(null, skipStep, buildScript);
-            const { output: baseOutput } = yield term.execSizeLimit(pr.base.ref, null, buildScript);
-            let base;
-            let current;
+            const parser = new SizeLimitParser_1.default();
+            const limit = new SizeLimit_1.default(parser);
+            const reporter = new SizeLimitReporter_1.default(octokit);
+            const { status, results } = yield limit.exec(null, skipStep, buildScript);
+            const { results: baseResults } = yield limit.exec(pr.base.ref, null, buildScript);
+            const isInvalid = status > 0;
+            const diffResults = parser.diff(baseResults, results);
             try {
-                base = limit.parseResults(baseOutput);
-                current = limit.parseResults(output);
+                yield reporter.comment(repo, pr.number, isInvalid, diffResults);
             }
             catch (error) {
-                console.log("Error parsing size-limit output. The output should be a json.");
-                throw error;
+                console.log("Error posting comment. This can happen for PR's originating from a fork without write permissions.");
             }
-            const body = [
-                SIZE_LIMIT_HEADING,
-                markdown_table_1.default(limit.formatResults(base, current))
-            ].join("\r\n");
-            const sizeLimitComment = yield fetchPreviousComment(octokit, repo, pr);
-            if (!sizeLimitComment) {
-                try {
-                    yield octokit.issues.createComment(Object.assign(Object.assign({}, repo), { 
-                        // eslint-disable-next-line camelcase
-                        issue_number: pr.number, body }));
-                }
-                catch (error) {
-                    console.log("Error creating comment. This can happen for PR's originating from a fork without write permissions.");
-                }
-            }
-            else {
-                try {
-                    yield octokit.issues.updateComment(Object.assign(Object.assign({}, repo), { 
-                        // eslint-disable-next-line camelcase
-                        comment_id: sizeLimitComment.id, body }));
-                }
-                catch (error) {
-                    console.log("Error updating comment. This can happen for PR's originating from a fork without write permissions.");
-                }
-            }
-            if (status > 0) {
-                core_1.setFailed("Size limit has been exceeded.");
+            if (isInvalid) {
+                throw new Error("Size limit has been exceeded.");
             }
         }
         catch (error) {
@@ -8251,6 +8212,112 @@ module.exports = resolveCommand;
 
 /***/ }),
 
+/***/ 502:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+// @ts-ignore
+const bytes_1 = __importDefault(__webpack_require__(63));
+class SizeLimitParser {
+    formatBytes(size) {
+        return bytes_1.default.format(size, { unitSeparator: " " });
+    }
+    formatTime(seconds = 0) {
+        if (seconds >= 1) {
+            return `${Math.ceil(seconds * 10) / 10} s`;
+        }
+        return `${Math.ceil(seconds * 1000)} ms`;
+    }
+    formatChange(base = 0, current = 0) {
+        if (current === 0) {
+            return "-100%";
+        }
+        const value = ((current - base) / current) * 100;
+        const formatted = (Math.sign(value) * Math.ceil(Math.abs(value) * 100)) / 100;
+        if (value > 0) {
+            return `+${formatted}% 🔺`;
+        }
+        if (value === 0) {
+            return `${formatted}%`;
+        }
+        return `${formatted}% 🔽`;
+    }
+    formatLine(value, change) {
+        return `${value} (${change})`;
+    }
+    formatSizeResult(name, base, current) {
+        return [
+            name,
+            this.formatLine(this.formatBytes(current.size), this.formatChange(base.size, current.size))
+        ];
+    }
+    formatTimeResult(name, base, current) {
+        return [
+            name,
+            this.formatLine(this.formatBytes(current.size), this.formatChange(base.size, current.size)),
+            this.formatLine(this.formatTime(current.loading), this.formatChange(base.loading, current.loading)),
+            this.formatLine(this.formatTime(current.running), this.formatChange(base.running, current.running)),
+            this.formatTime(current.total)
+        ];
+    }
+    parse(output) {
+        const results = JSON.parse(output);
+        return results.reduce((current, result) => {
+            let time = {};
+            if (result.loading !== undefined && result.running !== undefined) {
+                const loading = +result.loading;
+                const running = +result.running;
+                time = {
+                    running,
+                    loading,
+                    total: loading + running
+                };
+            }
+            return Object.assign(Object.assign({}, current), { [result.name]: Object.assign({ name: result.name, size: +result.size }, time) });
+        }, {});
+    }
+    diff(base, current) {
+        const empty = {
+            name: "-",
+            size: 0,
+            running: 0,
+            loading: 0,
+            total: 0
+        };
+        const names = [...new Set([...Object.keys(base), ...Object.keys(current)])];
+        const isSize = names.some((name) => current[name] && current[name].total === undefined);
+        const header = isSize
+            ? SizeLimitParser.SIZE_RESULTS_HEADER
+            : SizeLimitParser.TIME_RESULTS_HEADER;
+        const fields = names.map((name) => {
+            const baseResult = base[name] || empty;
+            const currentResult = current[name] || empty;
+            if (isSize) {
+                return this.formatSizeResult(name, baseResult, currentResult);
+            }
+            return this.formatTimeResult(name, baseResult, currentResult);
+        });
+        return [header, ...fields];
+    }
+}
+SizeLimitParser.SIZE_RESULTS_HEADER = ["Path", "Size"];
+SizeLimitParser.TIME_RESULTS_HEADER = [
+    "Path",
+    "Size",
+    "Loading time (3g)",
+    "Running time (snapdragon)",
+    "Total time"
+];
+exports.default = SizeLimitParser;
+
+
+/***/ }),
+
 /***/ 510:
 /***/ (function(module) {
 
@@ -9237,102 +9304,64 @@ module.exports = require("events");
 
 "use strict";
 
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-// @ts-ignore
-const bytes_1 = __importDefault(__webpack_require__(63));
-const EmptyResult = {
-    name: "-",
-    size: 0,
-    running: 0,
-    loading: 0,
-    total: 0
-};
+const exec_1 = __webpack_require__(986);
+const has_yarn_1 = __importDefault(__webpack_require__(931));
+const INSTALL_STEP = "install";
+const BUILD_STEP = "build";
 class SizeLimit {
-    formatBytes(size) {
-        return bytes_1.default.format(size, { unitSeparator: " " });
+    constructor(parser) {
+        this.parser = parser;
     }
-    formatTime(seconds) {
-        if (seconds >= 1) {
-            return `${Math.ceil(seconds * 10) / 10} s`;
-        }
-        return `${Math.ceil(seconds * 1000)} ms`;
-    }
-    formatChange(base = 0, current = 0) {
-        if (current === 0) {
-            return "-100%";
-        }
-        const value = ((current - base) / current) * 100;
-        const formatted = (Math.sign(value) * Math.ceil(Math.abs(value) * 100)) / 100;
-        if (value > 0) {
-            return `+${formatted}% 🔺`;
-        }
-        if (value === 0) {
-            return `${formatted}%`;
-        }
-        return `${formatted}% 🔽`;
-    }
-    formatLine(value, change) {
-        return `${value} (${change})`;
-    }
-    formatSizeResult(name, base, current) {
-        return [
-            name,
-            this.formatLine(this.formatBytes(current.size), this.formatChange(base.size, current.size))
-        ];
-    }
-    formatTimeResult(name, base, current) {
-        return [
-            name,
-            this.formatLine(this.formatBytes(current.size), this.formatChange(base.size, current.size)),
-            this.formatLine(this.formatTime(current.loading), this.formatChange(base.loading, current.loading)),
-            this.formatLine(this.formatTime(current.running), this.formatChange(base.running, current.running)),
-            this.formatTime(current.total)
-        ];
-    }
-    parseResults(output) {
-        const results = JSON.parse(output);
-        return results.reduce((current, result) => {
-            let time = {};
-            if (result.loading !== undefined && result.running !== undefined) {
-                const loading = +result.loading;
-                const running = +result.running;
-                time = {
-                    running,
-                    loading,
-                    total: loading + running
-                };
+    exec(ref, skipStep, buildScript) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const manager = has_yarn_1.default() ? "yarn" : "npm";
+            let output = "";
+            if (ref) {
+                try {
+                    yield exec_1.exec(`git fetch origin ${ref} --depth=1`);
+                }
+                catch (error) {
+                    console.log("Fetch failed", error.message);
+                }
+                yield exec_1.exec(`git checkout -f ${ref}`);
             }
-            return Object.assign(Object.assign({}, current), { [result.name]: Object.assign({ name: result.name, size: +result.size }, time) });
-        }, {});
-    }
-    formatResults(base, current) {
-        const names = [...new Set([...Object.keys(base), ...Object.keys(current)])];
-        const isSize = names.some((name) => current[name] && current[name].total === undefined);
-        const header = isSize
-            ? SizeLimit.SIZE_RESULTS_HEADER
-            : SizeLimit.TIME_RESULTS_HEADER;
-        const fields = names.map((name) => {
-            const baseResult = base[name] || EmptyResult;
-            const currentResult = current[name] || EmptyResult;
-            if (isSize) {
-                return this.formatSizeResult(name, baseResult, currentResult);
+            if (skipStep !== INSTALL_STEP && skipStep !== BUILD_STEP) {
+                yield exec_1.exec(`${manager} install`);
             }
-            return this.formatTimeResult(name, baseResult, currentResult);
+            if (skipStep !== BUILD_STEP) {
+                const script = buildScript || "build";
+                yield exec_1.exec(`${manager} run ${script}`);
+            }
+            const status = yield exec_1.exec("npx size-limit --json", [], {
+                windowsVerbatimArguments: true,
+                ignoreReturnCode: true,
+                listeners: {
+                    stdout: (data) => {
+                        output += data.toString();
+                    }
+                }
+            });
+            const results = this.parser.parse(output);
+            return {
+                status,
+                results
+            };
         });
-        return [header, ...fields];
     }
 }
-SizeLimit.SIZE_RESULTS_HEADER = ["Path", "Size"];
-SizeLimit.TIME_RESULTS_HEADER = [
-    "Path",
-    "Size",
-    "Loading time (3g)",
-    "Running time (snapdragon)",
-    "Total time"
-];
 exports.default = SizeLimit;
 
 
@@ -10452,7 +10481,7 @@ module.exports = (promise, onFinally) => {
 
 /***/ }),
 
-/***/ 733:
+/***/ 722:
 /***/ (function(__unusedmodule, exports, __webpack_require__) {
 
 "use strict";
@@ -10470,48 +10499,50 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const exec_1 = __webpack_require__(986);
-const has_yarn_1 = __importDefault(__webpack_require__(931));
-const INSTALL_STEP = "install";
-const BUILD_STEP = "build";
-class Term {
-    execSizeLimit(branch, skipStep, buildScript) {
+const markdown_table_1 = __importDefault(__webpack_require__(366));
+class SizeLimitReporter {
+    constructor(octokit) {
+        this.octokit = octokit;
+    }
+    getBody(isInvalid, diffResults) {
+        return [
+            SizeLimitReporter.HEADING,
+            `**Status:** ${isInvalid ? "❌" : "✅"}`,
+            `<details open>`,
+            `<summary>Toggle table</summary>`,
+            "<p>",
+            "",
+            markdown_table_1.default(diffResults),
+            "",
+            "</p>",
+            `</details>`
+        ].join("\r\n");
+    }
+    fetchPrevious(repo, issueNumber) {
         return __awaiter(this, void 0, void 0, function* () {
-            const manager = has_yarn_1.default() ? "yarn" : "npm";
-            let output = "";
-            if (branch) {
-                try {
-                    yield exec_1.exec(`git fetch origin ${branch} --depth=1`);
-                }
-                catch (error) {
-                    console.log("Fetch failed", error.message);
-                }
-                yield exec_1.exec(`git checkout -f ${branch}`);
+            const comments = yield this.octokit.paginate("GET /repos/:owner/:repo/issues/:issue_number/comments", Object.assign(Object.assign({}, repo), { issue_number: issueNumber }));
+            return comments.find(comment => comment.body.startsWith(SizeLimitReporter.HEADING));
+        });
+    }
+    create(repo, issueNumber, body) {
+        return this.octokit.issues.createComment(Object.assign(Object.assign({}, repo), { issue_number: issueNumber, body }));
+    }
+    update(repo, commentId, body) {
+        return this.octokit.issues.updateComment(Object.assign(Object.assign({}, repo), { comment_id: commentId, body }));
+    }
+    comment(repo, issueNumber, isInvalid, diffResults) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const body = this.getBody(isInvalid, diffResults);
+            const comment = yield this.fetchPrevious(repo, issueNumber);
+            if (comment) {
+                return this.update(repo, comment.id, body);
             }
-            if (skipStep !== INSTALL_STEP && skipStep !== BUILD_STEP) {
-                yield exec_1.exec(`${manager} install`);
-            }
-            if (skipStep !== BUILD_STEP) {
-                const script = buildScript || "build";
-                yield exec_1.exec(`${manager} run ${script}`);
-            }
-            const status = yield exec_1.exec("npx size-limit --json", [], {
-                windowsVerbatimArguments: true,
-                ignoreReturnCode: true,
-                listeners: {
-                    stdout: (data) => {
-                        output += data.toString();
-                    }
-                }
-            });
-            return {
-                status,
-                output
-            };
+            return this.create(repo, issueNumber, body);
         });
     }
 }
-exports.default = Term;
+SizeLimitReporter.HEADING = "## size-limit report 📦";
+exports.default = SizeLimitReporter;
 
 
 /***/ }),
