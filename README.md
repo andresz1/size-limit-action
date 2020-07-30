@@ -54,13 +54,14 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
-You can optionally specify a custom npm script to run instead of the default `build` adding a `build_script` option to the yml workflow shown above. Additionally, providing a `skip_step` option will tell the action to skip either the `install` or `build` phase.
+You can optionally specify a custom npm script to run instead of the default `build` adding a `build_script` option to the yml workflow shown above. Additionally, providing a `skip_step` option will tell the action to skip either the `install` or `build` phase. You can also specify the package manager by configuring the `manager` option.
 
 ```yaml
 with:
   github_token: ${{ secrets.GITHUB_TOKEN }}
   build_script: custom-build
   skip_step: install
+  manager: npm
 ```
 
 5. You are now all set
