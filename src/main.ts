@@ -39,7 +39,7 @@ async function run() {
         "No PR found. Only pull_request workflows are supported."
       );
     }
-
+    const manager = getInput("manager");
     const token = getInput("github_token");
     const skipStep = getInput("skip_step");
     const buildScript = getInput("build_script");
@@ -50,12 +50,14 @@ async function run() {
     const { status, output } = await term.execSizeLimit(
       null,
       skipStep,
-      buildScript
+      buildScript,
+      manager
     );
     const { output: baseOutput } = await term.execSizeLimit(
       pr.base.ref,
       null,
-      buildScript
+      buildScript,
+      manager
     );
 
     let base;

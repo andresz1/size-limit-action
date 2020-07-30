@@ -8,9 +8,10 @@ class Term {
   async execSizeLimit(
     branch?: string,
     skipStep?: string,
-    buildScript?: string
+    buildScript?: string,
+    packageManager?: string
   ): Promise<{ status: number; output: string }> {
-    const manager = hasYarn() ? "yarn" : "npm";
+    const manager = packageManager || hasYarn() ? "yarn" : "npm";
     let output = "";
 
     if (branch) {
