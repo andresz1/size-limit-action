@@ -63,6 +63,15 @@ with:
   skip_step: install
 ```
 
+For cases where you need to do additional authentication or have a non standard configuration you can provide size-limit report files directly. Specifying `base_size_path` and `head_size_path` will use the file directly for comparison and skip all the other steps.
+
+```yaml
+with:
+  github_token: ${{ secrets.GITHUB_TOKEN }}
+  base_size_path: ./base/client/size.json
+  head_size_path: ./head/client/size.json
+```
+
 5. You are now all set
 
 ## Feedback
