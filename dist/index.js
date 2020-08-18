@@ -3165,7 +3165,6 @@ const ARTIFACT_NAME = "size-limit-action";
 const RESULTS_FILE = "size-limit-results.json";
 function fetchPreviousComment(octokit, repo, pr) {
     return __awaiter(this, void 0, void 0, function* () {
-        // TODO: replace with octokit.issues.listComments when upgraded to v17
         const { data: commentList } = yield octokit.issues.listComments(Object.assign(Object.assign({}, repo), { 
             // eslint-disable-next-line camelcase
             issue_number: pr.number }));
@@ -3183,10 +3182,10 @@ function run() {
             if (!isMainBranch && !pr) {
                 throw new Error("No PR found. Only pull_request workflows are supported.");
             }
+            const token = core_1.getInput("github_token");
             const skipStep = core_1.getInput("skip_step");
             const buildScript = core_1.getInput("build_script");
-            const githubToken = core_1.getInput("github_token");
-            const octokit = github_1.getOctokit(githubToken);
+            const octokit = github_1.getOctokit(token);
             const term = new Term_1.default();
             const limit = new SizeLimit_1.default();
             const artifactClient = artifact.create();
@@ -3240,7 +3239,6 @@ function run() {
                 SIZE_LIMIT_HEADING,
                 markdown_table_1.default(limit.formatResults(base, current))
             ].join("\r\n");
-            // @ts-ignore
             const sizeLimitComment = yield fetchPreviousComment(octokit, repo, pr);
             if (!sizeLimitComment) {
                 try {
@@ -15288,7 +15286,7 @@ class Term {
                 const script = buildScript || "build";
                 yield exec_1.exec(`${manager} run ${script}`);
             }
-            const status = yield exec_1.exec("npx", ["size-limit", "--json"], {
+            const status = yield exec_1.exec("npx size-limit --json", [], {
                 windowsVerbatimArguments: true,
                 ignoreReturnCode: true,
                 listeners: {

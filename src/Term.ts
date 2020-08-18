@@ -7,7 +7,7 @@ const BUILD_STEP = "build";
 class Term {
   async execSizeLimit(
     skipStep?: string,
-    buildScript?: string,
+    buildScript?: string
   ): Promise<{ status: number; output: string }> {
     const manager = hasYarn() ? "yarn" : "npm";
     let output = "";
@@ -21,7 +21,7 @@ class Term {
       await exec(`${manager} run ${script}`);
     }
 
-    const status = await exec("npx", ["size-limit", "--json"], {
+    const status = await exec("npx size-limit --json", [], {
       windowsVerbatimArguments: true,
       ignoreReturnCode: true,
       listeners: {
