@@ -20,10 +20,13 @@
     }
   ],
   "dependencies": {
+    "@actions/artifact": "^0.3.5",
     "@actions/core": "^1.2.3",
     "@actions/exec": "^1.0.3",
-    "@actions/github": "^2.1.1",
+    "@actions/github": "^4.0.0",
+    "@actions/glob": "^0.1.0",
     "bytes": "^3.1.0",
+    "github-fetch-workflow-artifact": "^1.0.1-4",
     "has-yarn": "^2.1.0",
     "markdown-table": "^2.0.0"
   },

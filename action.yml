@@ -1,19 +1,23 @@
-name: 'size-limit-action'
-description: 'size-limit action'
-author: 'Andres Alvarez <a.alvarez.sor@gmail.com>'
+name: "size-limit-action"
+description: "size-limit action"
+author: "Andres Alvarez <a.alvarez.sor@gmail.com>"
 branding:
-  icon: 'activity'
-  color: 'green'
+  icon: "activity"
+  color: "green"
 inputs:
   github_token:
     required: true
-    description: 'a github access token'
+    description: "a github access token"
   build_script:
     required: false
-    description: 'a custom npm script to build'
+    description: "a custom npm script to build"
   skip_step:
     required: false
     description: 'which step to skip, either "install" or "build"'
+  main_branch:
+    required: false
+    default: master
+    description: "The name of the main/protected branch"
 runs:
-  using: 'node12'
-  main: 'dist/index.js'
+  using: "node12"
+  main: "dist/index.js"
