@@ -40,9 +40,11 @@ This action uses [Size Limit](https://github.com/ai/size-limit) (performance bud
 ```yaml
 name: "size"
 on:
-  pull_request:
+  push:
     branches:
       - master
+  pull_request:
+
 jobs:
   size:
     runs-on: ubuntu-latest
