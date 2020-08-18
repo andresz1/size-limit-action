@@ -8,7 +8,8 @@ class Term {
   async execSizeLimit(
     branch?: string,
     skipStep?: string,
-    buildScript?: string
+    buildScript?: string,
+    windowsVerbatimArguments?: boolean
   ): Promise<{ status: number; output: string }> {
     const manager = hasYarn() ? "yarn" : "npm";
     let output = "";
@@ -32,8 +33,8 @@ class Term {
       await exec(`${manager} run ${script}`);
     }
 
-    const status = await exec("npx size-limit --json", [], {
-      windowsVerbatimArguments: true,
+    const status = await exec("npx", ["size-limit", "--json"], {
+      windowsVerbatimArguments,
       ignoreReturnCode: true,
       listeners: {
         stdout: (data: Buffer) => {
