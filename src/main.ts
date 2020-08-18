@@ -48,10 +48,10 @@ async function run() {
       );
     }
 
+    const token = getInput("github_token");
     const skipStep = getInput("skip_step");
     const buildScript = getInput("build_script");
-    const githubToken = getInput("github_token");
-    const octokit = getOctokit(githubToken);
+    const octokit = getOctokit(token);
     const term = new Term();
     const limit = new SizeLimit();
     const artifactClient = artifact.create();
@@ -129,7 +129,6 @@ async function run() {
       table(limit.formatResults(base, current))
     ].join("\r\n");
 
-    // @ts-ignore
     const sizeLimitComment = await fetchPreviousComment(octokit, repo, pr);
 
     if (!sizeLimitComment) {
