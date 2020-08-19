@@ -138,7 +138,7 @@ class SizeLimit {
   ): Array<Array<string>> {
     const names = [
       ...new Set([
-        ...(base ? [Object.keys(base)] : []),
+        ...(base ? Object.keys(base) : []),
         ...Object.keys(current)
       ])
     ];

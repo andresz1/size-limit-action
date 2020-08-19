@@ -13687,7 +13687,7 @@ class SizeLimit {
     formatResults(base, current) {
         const names = [
             ...new Set([
-                ...(base ? [Object.keys(base)] : []),
+                ...(base ? Object.keys(base) : []),
                 ...Object.keys(current)
             ])
         ];
