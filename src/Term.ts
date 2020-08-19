@@ -33,7 +33,7 @@ class Term {
       await exec(`${manager} run ${script}`);
     }
 
-    const status = await exec("npx", ["size-limit", "--json"], {
+    const status = await exec("npx size-limit --json", [], {
       windowsVerbatimArguments,
       ignoreReturnCode: true,
       listeners: {
