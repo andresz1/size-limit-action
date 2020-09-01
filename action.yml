@@ -14,6 +14,10 @@ inputs:
   skip_step:
     required: false
     description: 'which step to skip, either "install" or "build"'
+  windows_verbatim_arguments:
+    required: false
+    description: "exec `size-limit` with the option `windowsVerbatimArguments`"
+    default: true
 runs:
   using: 'node12'
   main: 'dist/index.js'
