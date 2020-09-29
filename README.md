@@ -72,23 +72,12 @@ It's only convenient if all your stuff is in a subdirectory of your git reposito
 
 For instance, if `package.json` is in the subfolder `client/`:
 
-```diff
-name: Compressed Size
-
-on: [pull_request]
-
-jobs:
-  build:
-
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v2
-    - uses: Arhia/action-check-compressed-size@v0.7
-      with:
-        repo-token: "${{ secrets.GITHUB_TOKEN }}"
-        build-script: "ci"
-+        directory: client/
+```yaml
+with:
+  github_token: ${{ secrets.GITHUB_TOKEN }}
+  build_script: custom-build
+  skip_step: install
+  directory: client/
 ```
 
 ## Feedback
