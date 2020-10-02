@@ -43,6 +43,7 @@ async function run() {
     const token = getInput("github_token");
     const skipStep = getInput("skip_step");
     const buildScript = getInput("build_script");
+    const directory = getInput("directory") || process.cwd();
     const windowsVerbatimArguments =
       getInput("windows_verbatim_arguments") === "true" ? true : false;
     const octokit = new GitHub(token);
@@ -53,13 +54,15 @@ async function run() {
       null,
       skipStep,
       buildScript,
-      windowsVerbatimArguments
+      windowsVerbatimArguments,
+      directory
     );
     const { output: baseOutput } = await term.execSizeLimit(
       pr.base.ref,
       null,
       buildScript,
-      windowsVerbatimArguments
+      windowsVerbatimArguments,
+      directory
     );
 
     let base;

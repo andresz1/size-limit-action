@@ -65,6 +65,21 @@ with:
 
 5. You are now all set
 
+### Customizing working directory
+    
+`directory` option allow to run all the tasks in a subfolder.
+It's only convenient if all your stuff is in a subdirectory of your git repository.
+
+For instance, if `package.json` is in the subfolder `client/`:
+
+```yaml
+with:
+  github_token: ${{ secrets.GITHUB_TOKEN }}
+  build_script: custom-build
+  skip_step: install
+  directory: client/
+```
+
 ## Feedback
 
 Pull requests, feature ideas and bug reports are very welcome. We highly appreciate any feedback.
