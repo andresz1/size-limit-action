@@ -41,11 +41,11 @@ class SizeLimit {
   }
 
   private formatChange(base: number = 0, current: number = 0): string {
-    if (current === 0) {
-      return "-100%";
+    if (base === 0) {
+      return "+100% 🔺";
     }
 
-    const value = ((current - base) / current) * 100;
+    const value = ((current - base) / base) * 100;
     const formatted =
       (Math.sign(value) * Math.ceil(Math.abs(value) * 100)) / 100;
 
