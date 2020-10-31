@@ -67,9 +67,9 @@ describe("SizeLimit", () => {
       SizeLimit.TIME_RESULTS_HEADER,
       [
         "dist/index.js",
-        "98.53 KB (-9.92% 🔽)",
-        "2.6 s (+15.59% 🔺)",
-        "203 ms (+49.48% 🔺)",
+        "98.53 KB (-9.02% 🔽)",
+        "2.6 s (+18.47% 🔺)",
+        "203 ms (+97.94% 🔺)",
         "2.8 s"
       ]
     ]);
@@ -92,7 +92,7 @@ describe("SizeLimit", () => {
 
     expect(limit.formatResults(base, current)).toEqual([
       SizeLimit.SIZE_RESULTS_HEADER,
-      ["dist/index.js", "98.53 KB (-9.92% 🔽)"]
+      ["dist/index.js", "98.53 KB (-9.02% 🔽)"]
     ]);
   });
 
@@ -117,7 +117,7 @@ describe("SizeLimit", () => {
 
     expect(limit.formatResults(base, current)).toEqual([
       SizeLimit.SIZE_RESULTS_HEADER,
-      ["dist/index.js", "98.53 KB (-9.92% 🔽)"],
+      ["dist/index.js", "98.53 KB (-9.02% 🔽)"],
       ["dist/new.js", "98.53 KB (+100% 🔺)"]
     ]);
   });
@@ -139,7 +139,7 @@ describe("SizeLimit", () => {
 
     expect(limit.formatResults(base, current)).toEqual([
       SizeLimit.SIZE_RESULTS_HEADER,
-      ["dist/index.js", "0 B (-100%)"],
+      ["dist/index.js", "0 B (-100% 🔽)"],
       ["dist/new.js", "98.53 KB (+100% 🔺)"]
     ]);
   });
