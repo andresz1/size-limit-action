@@ -5,8 +5,7 @@ import table from "markdown-table";
 import Term from "./Term";
 import SizeLimit from "./SizeLimit";
 
-const SIZE_LIMIT_URL = "https://github.com/ai/size-limit";
-const SIZE_LIMIT_HEADING = `## [size-limit](${SIZE_LIMIT_URL}) report`;
+const SIZE_LIMIT_HEADING = `## 📦 size-limit report`;
 
 async function fetchPreviousComment(
   octokit: GitHub,
