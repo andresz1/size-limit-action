@@ -2011,7 +2011,7 @@ const github_1 = __webpack_require__(469);
 const markdown_table_1 = __importDefault(__webpack_require__(366));
 const Term_1 = __importDefault(__webpack_require__(733));
 const SizeLimit_1 = __importDefault(__webpack_require__(617));
-const SIZE_LIMIT_HEADING = `## 📦 size-limit report`;
+const SIZE_LIMIT_HEADING = `## size-limit report 📦 `;
 function fetchPreviousComment(octokit, repo, pr) {
     return __awaiter(this, void 0, void 0, function* () {
         // TODO: replace with octokit.issues.listComments when upgraded to v17
