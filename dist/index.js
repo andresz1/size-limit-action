@@ -10573,7 +10573,7 @@ class Term {
     execSizeLimit(branch, skipStep, buildScript, windowsVerbatimArguments, directory) {
         return __awaiter(this, void 0, void 0, function* () {
             const manager = has_yarn_1.default() ? "yarn" : "npm";
-            const runner = has_yarn_1.default() ? "yarn dlx --quiet" : "npx";
+            const runner = has_yarn_1.default() ? "GITHUB_ACTIONS= yarn dlx --quiet" : "npx";
             let output = "";
             if (branch) {
                 try {
