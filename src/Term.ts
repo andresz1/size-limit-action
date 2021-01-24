@@ -13,7 +13,7 @@ class Term {
     directory?: string
   ): Promise<{ status: number; output: string }> {
     const manager = hasYarn() ? "yarn" : "npm";
-    const runner = hasYarn() ? "GITHUB_ACTIONS= yarn dlx --quiet" : "npx";
+    const runner = hasYarn() ? "yarn dlx --quiet" : "npx";
     let output = "";
 
     if (branch) {
@@ -40,6 +40,9 @@ class Term {
     }
 
     const status = await exec(`${runner} size-limit --json`, [], {
+      env: {
+        GITHUB_ACTIONS: ""
+      },
       windowsVerbatimArguments,
       ignoreReturnCode: true,
       listeners: {
