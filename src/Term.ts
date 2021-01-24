@@ -13,6 +13,7 @@ class Term {
     directory?: string
   ): Promise<{ status: number; output: string }> {
     const manager = hasYarn() ? "yarn" : "npm";
+    const runner = hasYarn() ? "yarn dlx" : "npx";
     let output = "";
 
     if (branch) {
@@ -38,7 +39,7 @@ class Term {
       });
     }
 
-    const status = await exec("npx size-limit --json", [], {
+    const status = await exec(`${runner} size-limit --json`, [], {
       windowsVerbatimArguments,
       ignoreReturnCode: true,
       listeners: {
