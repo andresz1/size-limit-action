@@ -67,9 +67,6 @@ async function run() {
     let base;
     let current;
 
-    console.log("DEBUG", "baseOutput", baseOutput);
-    console.log("DEBUG", "output", output);
-
     try {
       base = limit.parseResults(baseOutput);
       current = limit.parseResults(output);
