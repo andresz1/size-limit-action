@@ -13,7 +13,7 @@ class Term {
     directory?: string
   ): Promise<{ status: number; output: string }> {
     const manager = hasYarn() ? "yarn" : "npm";
-    const runner = hasYarn() ? "yarn dlx" : "npx";
+    const runner = hasYarn() ? "yarn dlx --quiet" : "npx";
     let output = "";
 
     if (branch) {
