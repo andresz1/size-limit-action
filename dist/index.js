@@ -2104,8 +2104,6 @@ function run() {
             const { output: baseOutput } = yield term.execSizeLimit(pr.base.ref, null, buildScript, windowsVerbatimArguments, directory);
             let base;
             let current;
-            console.log("DEBUG", "baseOutput", baseOutput);
-            console.log("DEBUG", "output", output);
             try {
                 base = limit.parseResults(baseOutput);
                 current = limit.parseResults(output);
