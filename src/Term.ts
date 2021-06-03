@@ -9,6 +9,7 @@ class Term {
     branch?: string,
     skipStep?: string,
     buildScript?: string,
+    cleanScript?: string,
     windowsVerbatimArguments?: boolean,
     directory?: string
   ): Promise<{ status: number; output: string }> {
@@ -48,6 +49,12 @@ class Term {
       },
       cwd: directory
     });
+
+    if (cleanScript) {
+      await exec(`${manager} run ${cleanScript}`, [], {
+        cwd: directory
+      });
+    }
 
     return {
       status,

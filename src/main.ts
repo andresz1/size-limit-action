@@ -42,6 +42,7 @@ async function run() {
     const token = getInput("github_token");
     const skipStep = getInput("skip_step");
     const buildScript = getInput("build_script");
+    const cleanScript = getInput("clean_script");
     const directory = getInput("directory") || process.cwd();
     const windowsVerbatimArguments =
       getInput("windows_verbatim_arguments") === "true" ? true : false;
@@ -53,6 +54,7 @@ async function run() {
       null,
       skipStep,
       buildScript,
+      cleanScript,
       windowsVerbatimArguments,
       directory
     );
@@ -60,6 +62,7 @@ async function run() {
       pr.base.ref,
       null,
       buildScript,
+      cleanScript,
       windowsVerbatimArguments,
       directory
     );
