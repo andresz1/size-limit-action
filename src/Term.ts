@@ -12,7 +12,7 @@ class Term {
     windowsVerbatimArguments?: boolean,
     directory?: string
   ): Promise<{ status: number; output: string }> {
-    const manager = hasYarn() ? "yarn" : "npm";
+    const manager = hasYarn(directory) ? "yarn" : "npm";
     let output = "";
 
     if (branch) {
