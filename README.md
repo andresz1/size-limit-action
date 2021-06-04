@@ -63,10 +63,18 @@ with:
   skip_step: install
 ```
 
+Add `clean_script` option to specify npm script to run after size-limit results are collected. This is useful to clean up leftover assets.
+
+```yaml
+with:
+  github_token: ${{ secrets.GITHUB_TOKEN }}
+  clean_script: cleanup
+```
+
 5. You are now all set
 
 ### Customizing working directory
-    
+
 `directory` option allow to run all the tasks in a subfolder.
 It's only convenient if all your stuff is in a subdirectory of your git repository.
 
