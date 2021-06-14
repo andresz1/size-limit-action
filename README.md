@@ -51,14 +51,11 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: andresz1/size-limit-action@v1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 You can optionally specify a custom npm script to run instead of the default `build` adding a `build_script` option to the yml workflow shown above. Additionally, providing a `skip_step` option will tell the action to skip either the `install` or `build` phase.
 
 ```yaml
 with:
-  github_token: ${{ secrets.GITHUB_TOKEN }}
   build_script: custom-build
   skip_step: install
 ```
@@ -67,7 +64,6 @@ Add `clean_script` option to specify npm script to run after size-limit results 
 
 ```yaml
 with:
-  github_token: ${{ secrets.GITHUB_TOKEN }}
   clean_script: cleanup
 ```
 
@@ -82,7 +78,6 @@ For instance, if `package.json` is in the subfolder `client/`:
 
 ```yaml
 with:
-  github_token: ${{ secrets.GITHUB_TOKEN }}
   build_script: custom-build
   skip_step: install
   directory: client/
