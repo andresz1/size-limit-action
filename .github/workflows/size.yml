@@ -13,5 +13,3 @@ jobs:
       - run: |
           git fetch --no-tags --prune --depth=1 origin +refs/heads/*:refs/remotes/origin/*
       - uses: ./
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
