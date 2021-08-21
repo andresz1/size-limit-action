@@ -8,12 +8,14 @@ class Term {
   async execSizeLimit(
     branch?: string,
     skipStep?: string,
+    prefixScripts?: boolean,
     buildScript?: string,
     cleanScript?: string,
     windowsVerbatimArguments?: boolean,
     directory?: string
   ): Promise<{ status: number; output: string }> {
     const manager = hasYarn(directory) ? "yarn" : "npm";
+    const scriptPrefix = prefixScripts ? `${manager} run ` : "";
     let output = "";
 
     if (branch) {
@@ -34,7 +36,7 @@ class Term {
 
     if (skipStep !== BUILD_STEP) {
       const script = buildScript || "build";
-      await exec(`${manager} run ${script}`, [], {
+      await exec(`${scriptPrefix}${script}`, [], {
         cwd: directory
       });
     }
@@ -51,7 +53,7 @@ class Term {
     });
 
     if (cleanScript) {
-      await exec(`${manager} run ${cleanScript}`, [], {
+      await exec(`${scriptPrefix}${cleanScript}`, [], {
         cwd: directory
       });
     }

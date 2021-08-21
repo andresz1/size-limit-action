@@ -41,6 +41,7 @@ async function run() {
 
     const token = getInput("github_token");
     const skipStep = getInput("skip_step");
+    const prefixScripts = getInput("prefix_scripts") !== "false";
     const buildScript = getInput("build_script");
     const cleanScript = getInput("clean_script");
     const directory = getInput("directory") || process.cwd();
@@ -53,6 +54,7 @@ async function run() {
     const { status, output } = await term.execSizeLimit(
       null,
       skipStep,
+      prefixScripts,
       buildScript,
       cleanScript,
       windowsVerbatimArguments,
@@ -61,6 +63,7 @@ async function run() {
     const { output: baseOutput } = await term.execSizeLimit(
       pr.base.ref,
       null,
+      prefixScripts,
       buildScript,
       cleanScript,
       windowsVerbatimArguments,

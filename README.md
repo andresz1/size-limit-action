@@ -71,6 +71,16 @@ with:
   clean_script: cleanup
 ```
 
+If you use a build system (e.g. `make`) instead of npm scripts, you can set the `prefix_scripts` option to `false`, which will stop your `build_script` and/or `clean_script` from being prefixed with `npm run` / `yarn run`.
+
+```yaml
+with:
+  github_token: ${{ secrets.GITHUB_TOKEN }}
+  prefix_scripts: false
+  build_script: make dist
+  clean_script: make clean
+```
+
 5. You are now all set
 
 ### Customizing working directory

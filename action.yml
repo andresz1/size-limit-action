@@ -8,6 +8,10 @@ inputs:
   github_token:
     required: true
     description: 'a github access token'
+  prefix_scripts:
+    required: false
+    description: 'whether to prefix scripts with npm run / yarn run'
+    default: true
   build_script:
     required: false
     description: 'a custom npm script to build'
