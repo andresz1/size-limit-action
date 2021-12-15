@@ -24,6 +24,7 @@
     "@actions/exec": "^1.0.3",
     "@actions/github": "^2.1.1",
     "bytes": "^3.1.0",
+    "has-pnpm": "^1.1.1",
     "has-yarn": "^2.1.0",
     "markdown-table": "^2.0.0"
   },

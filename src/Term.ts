@@ -1,5 +1,6 @@
 import { exec } from "@actions/exec";
 import hasYarn from "has-yarn";
+import hasPNPM from "has-pnpm";
 
 const INSTALL_STEP = "install";
 const BUILD_STEP = "build";
@@ -13,7 +14,11 @@ class Term {
     windowsVerbatimArguments?: boolean,
     directory?: string
   ): Promise<{ status: number; output: string }> {
-    const manager = hasYarn(directory) ? "yarn" : "npm";
+    const manager = hasYarn(directory)
+      ? "yarn"
+      : hasPNPM(directory)
+      ? "pnpm"
+      : "npm";
     let output = "";
 
     if (branch) {
