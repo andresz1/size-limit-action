@@ -43,6 +43,7 @@ async function run() {
     const skipStep = getInput("skip_step");
     const buildScript = getInput("build_script");
     const cleanScript = getInput("clean_script");
+    const script = getInput("script");
     const directory = getInput("directory") || process.cwd();
     const windowsVerbatimArguments =
       getInput("windows_verbatim_arguments") === "true" ? true : false;
@@ -56,7 +57,8 @@ async function run() {
       buildScript,
       cleanScript,
       windowsVerbatimArguments,
-      directory
+      directory,
+      script
     );
     const { output: baseOutput } = await term.execSizeLimit(
       pr.base.ref,
@@ -64,7 +66,8 @@ async function run() {
       buildScript,
       cleanScript,
       windowsVerbatimArguments,
-      directory
+      directory,
+      script
     );
 
     let base;

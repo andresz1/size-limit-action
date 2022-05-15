@@ -24,6 +24,10 @@ inputs:
     required: false
     description: "exec `size-limit` with the option `windowsVerbatimArguments`"
     default: true
+  script:
+    required: false
+    default: "npx size-limit --json"
+    description: "The script used to generate size-limit results"
 runs:
   using: 'node12'
   main: 'dist/index.js'
