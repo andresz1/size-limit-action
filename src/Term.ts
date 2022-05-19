@@ -12,7 +12,8 @@ class Term {
     buildScript?: string,
     cleanScript?: string,
     windowsVerbatimArguments?: boolean,
-    directory?: string
+    directory?: string,
+    script?: string
   ): Promise<{ status: number; output: string }> {
     const manager = hasYarn(directory)
       ? "yarn"
@@ -44,7 +45,7 @@ class Term {
       });
     }
 
-    const status = await exec("npx size-limit --json", [], {
+    const status = await exec(script, [], {
       windowsVerbatimArguments,
       ignoreReturnCode: true,
       listeners: {
