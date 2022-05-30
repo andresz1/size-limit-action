@@ -73,9 +73,19 @@ with:
 
 5. You are now all set
 
+### Customizing size-limit script
+
+Use `script` option to customize the size-limit execution script (the output should always be a `json`), which defaults to `npx size-limit --json`.
+
+```yaml
+with:
+  github_token: ${{ secrets.GITHUB_TOKEN }}
+  script: yarn dlx size-limit --json
+```
+
 ### Customizing working directory
 
-`directory` option allow to run all the tasks in a subfolder.
+The `directory` option allow to run all the tasks in a subfolder.
 It's only convenient if all your stuff is in a subdirectory of your git repository.
 
 For instance, if `package.json` is in the subfolder `client/`:
