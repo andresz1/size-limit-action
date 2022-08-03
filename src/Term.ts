@@ -8,10 +8,10 @@ const BUILD_STEP = "build";
 class Term {
   async execSizeLimit(
     script: string,
+    buildScript: string,
     windowsVerbatimArguments: boolean,
     branch?: string,
     skipStep?: string,
-    buildScript?: string,
     cleanScript?: string,
     directory?: string
   ): Promise<{ status: number; output: string }> {
@@ -39,8 +39,7 @@ class Term {
     }
 
     if (skipStep !== BUILD_STEP) {
-      const script = buildScript || "build";
-      await exec(`${manager} run ${script}`, [], {
+      await exec(`${manager} run ${buildScript}`, [], {
         cwd: directory
       });
     }

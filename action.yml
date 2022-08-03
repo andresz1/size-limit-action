@@ -10,6 +10,7 @@ inputs:
     description: 'a github access token'
   build_script:
     required: false
+    default: "build"
     description: 'a custom npm script to build'
   clean_script:
     required: false
