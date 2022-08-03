@@ -8,11 +8,11 @@ const BUILD_STEP = "build";
 class Term {
   async execSizeLimit(
     script: string,
+    windowsVerbatimArguments: boolean,
     branch?: string,
     skipStep?: string,
     buildScript?: string,
     cleanScript?: string,
-    windowsVerbatimArguments?: boolean,
     directory?: string
   ): Promise<{ status: number; output: string }> {
     const manager = hasYarn(directory)

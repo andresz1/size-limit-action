@@ -53,20 +53,20 @@ async function run() {
 
     const { status, output } = await term.execSizeLimit(
       script,
+      windowsVerbatimArguments,
       null,
       skipStep,
       buildScript,
       cleanScript,
-      windowsVerbatimArguments,
       directory
     );
     const { output: baseOutput } = await term.execSizeLimit(
       script,
+      windowsVerbatimArguments,
       pr.base.ref,
       null,
       buildScript,
       cleanScript,
-      windowsVerbatimArguments,
       directory
     );
 
