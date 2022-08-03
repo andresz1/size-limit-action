@@ -25,7 +25,7 @@
     "@actions/github": "^5.0.3",
     "bytes": "^3.1.0",
     "has-pnpm": "^1.1.1",
-    "has-yarn": "^2.1.0",
+    "has-yarn": "^3.0.0",
     "markdown-table": "^2.0.0"
   },
   "devDependencies": {
