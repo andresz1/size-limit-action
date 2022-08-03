@@ -22,7 +22,7 @@ inputs:
     description: "a custom subdirectory"
   windows_verbatim_arguments:
     required: false
-    default: true
+    default: "true"
     description: "exec `size-limit` with the option `windowsVerbatimArguments`"
   script:
     required: false
