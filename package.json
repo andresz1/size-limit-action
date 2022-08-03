@@ -20,9 +20,9 @@
     }
   ],
   "dependencies": {
-    "@actions/core": "^1.2.6",
+    "@actions/core": "^1.9.0",
     "@actions/exec": "^1.0.3",
-    "@actions/github": "^2.1.1",
+    "@actions/github": "^5.0.3",
     "bytes": "^3.1.0",
     "has-pnpm": "^1.1.1",
     "has-yarn": "^2.1.0",
