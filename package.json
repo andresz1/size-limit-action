@@ -29,8 +29,8 @@
     "markdown-table": "^2.0.0"
   },
   "devDependencies": {
-    "@size-limit/file": "^4.3.1",
-    "@size-limit/time": "^4.3.1",
+    "@size-limit/file": "^8.0.0",
+    "@size-limit/time": "^8.0.0",
     "@types/jest": "^24.0.23",
     "@types/node": "^12.7.12",
     "@typescript-eslint/parser": "^2.8.0",
@@ -42,7 +42,7 @@
     "jest-circus": "^24.9.0",
     "js-yaml": "^3.13.1",
     "prettier": "^1.19.1",
-    "size-limit": "^4.3.1",
+    "size-limit": "^8.0.0",
     "ts-jest": "^24.2.0",
     "typescript": "^3.6.4"
   }
