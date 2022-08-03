@@ -22,8 +22,8 @@ inputs:
     description: "a custom subdirectory"
   windows_verbatim_arguments:
     required: false
-    description: "exec `size-limit` with the option `windowsVerbatimArguments`"
     default: true
+    description: "exec `size-limit` with the option `windowsVerbatimArguments`"
   script:
     required: false
     default: "npx size-limit --json"
