@@ -8,6 +8,7 @@ describe("SizeLimit", () => {
         name: "dist/index.js",
         passed: true,
         size: "110894",
+        sizeLimit: "120000",
         running: "0.10210999999999999",
         loading: "2.1658984375"
       }
@@ -19,6 +20,7 @@ describe("SizeLimit", () => {
         loading: 2.1658984375,
         running: 0.10210999999999999,
         size: 110894,
+        sizeLimit: 120000,
         total: 2.2680084375000003
       }
     });
@@ -30,14 +32,16 @@ describe("SizeLimit", () => {
       {
         name: "dist/index.js",
         passed: true,
-        size: "110894"
+        size: "110894",
+        sizeLimit: 120000
       }
     ]);
 
     expect(limit.parseResults(output)).toEqual({
       "dist/index.js": {
         name: "dist/index.js",
-        size: 110894
+        size: 110894,
+        sizeLimit: 120000
       }
     });
   });
@@ -48,6 +52,7 @@ describe("SizeLimit", () => {
       "dist/index.js": {
         name: "dist/index.js",
         size: 110894,
+        sizeLimit: 120000,
         running: 0.10210999999999999,
         loading: 2.1658984375,
         total: 2.2680084375000003
@@ -57,6 +62,7 @@ describe("SizeLimit", () => {
       "dist/index.js": {
         name: "dist/index.js",
         size: 100894,
+        sizeLimit: 120000,
         running: 0.20210999999999999,
         loading: 2.5658984375,
         total: 2.7680084375000003
@@ -80,13 +86,15 @@ describe("SizeLimit", () => {
     const base = {
       "dist/index.js": {
         name: "dist/index.js",
-        size: 110894
+        size: 110894,
+        sizeLimit: 120000
       }
     };
     const current = {
       "dist/index.js": {
         name: "dist/index.js",
-        size: 100894
+        size: 100894,
+        sizeLimit: 120000
       }
     };
 
@@ -101,17 +109,20 @@ describe("SizeLimit", () => {
     const base = {
       "dist/index.js": {
         name: "dist/index.js",
-        size: 110894
+        size: 110894,
+        sizeLimit: 120000
       }
     };
     const current = {
       "dist/index.js": {
         name: "dist/index.js",
-        size: 100894
+        size: 100894,
+        sizeLimit: 120000
       },
       "dist/new.js": {
         name: "dist/new.js",
-        size: 100894
+        size: 100894,
+        sizeLimit: 120000
       }
     };
 
@@ -127,13 +138,16 @@ describe("SizeLimit", () => {
     const base = {
       "dist/index.js": {
         name: "dist/index.js",
-        size: 110894
+        size: 110894,
+
+        sizeLimit: 120000
       }
     };
     const current = {
       "dist/new.js": {
         name: "dist/new.js",
-        size: 100894
+        size: 100894,
+        sizeLimit: 120000
       }
     };
 

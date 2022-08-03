@@ -4,6 +4,7 @@ import bytes from "bytes";
 interface IResult {
   name: string;
   size: number;
+  sizeLimit: number;
   running?: number;
   loading?: number;
   total?: number;
@@ -12,17 +13,19 @@ interface IResult {
 const EmptyResult = {
   name: "-",
   size: 0,
+  sizeLimit: 0,
   running: 0,
   loading: 0,
   total: 0
 };
 
 class SizeLimit {
-  static SIZE_RESULTS_HEADER = ["Path", "Size"];
+  static SIZE_RESULTS_HEADER = ["Path", "Size", "Size Limit"];
 
   static TIME_RESULTS_HEADER = [
     "Path",
     "Size",
+    "Size Limit",
     "Loading time (3g)",
     "Running time (snapdragon)",
     "Total time"
@@ -124,6 +127,7 @@ class SizeLimit {
           [result.name]: {
             name: result.name,
             size: +result.size,
+            sizeLimit: +result.sizeLimit,
             ...time
           }
         };
