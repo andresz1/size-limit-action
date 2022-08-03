@@ -40,13 +40,14 @@ async function run() {
     }
 
     const token = getInput("github_token");
-    const skipStep = getInput("skip_step");
-    const buildScript = getInput("build_script");
-    const cleanScript = getInput("clean_script");
     const script = getInput("script");
+    const buildScript = getInput("build_script");
+    const skipInstall = getInput("skip_install") === "true";
+    const skipBuild = getInput("skip_build") === "true";
+    const cleanScript = getInput("clean_script");
     const directory = getInput("directory") || process.cwd();
     const windowsVerbatimArguments =
-      getInput("windows_verbatim_arguments") === "true" ? true : false;
+      getInput("windows_verbatim_arguments") === "true";
     const octokit = new GitHub(token);
     const term = new Term();
     const limit = new SizeLimit();
@@ -54,18 +55,20 @@ async function run() {
     const { status, output } = await term.execSizeLimit(
       script,
       buildScript,
+      skipInstall,
+      skipBuild,
       windowsVerbatimArguments,
       null,
-      skipStep,
       cleanScript,
       directory
     );
     const { output: baseOutput } = await term.execSizeLimit(
       script,
       buildScript,
+      skipInstall,
+      skipBuild,
       windowsVerbatimArguments,
       pr.base.ref,
-      null,
       cleanScript,
       directory
     );

@@ -4,14 +4,16 @@ import hasPNPM from "has-pnpm";
 
 const INSTALL_STEP = "install";
 const BUILD_STEP = "build";
+const ALL_STEPS = "all";
 
 class Term {
   async execSizeLimit(
     script: string,
     buildScript: string,
+    skipInstall: boolean,
+    skipBuild: boolean,
     windowsVerbatimArguments: boolean,
     branch?: string,
-    skipStep?: string,
     cleanScript?: string,
     directory?: string
   ): Promise<{ status: number; output: string }> {
@@ -32,13 +34,13 @@ class Term {
       await exec(`git checkout -f ${branch}`);
     }
 
-    if (skipStep !== INSTALL_STEP && skipStep !== BUILD_STEP) {
+    if (!skipInstall) {
       await exec(`${manager} install`, [], {
         cwd: directory
       });
     }
 
-    if (skipStep !== BUILD_STEP) {
+    if (!skipBuild) {
       await exec(`${manager} run ${buildScript}`, [], {
         cwd: directory
       });
