@@ -52,22 +52,22 @@ async function run() {
     const limit = new SizeLimit();
 
     const { status, output } = await term.execSizeLimit(
+      script,
       null,
       skipStep,
       buildScript,
       cleanScript,
       windowsVerbatimArguments,
-      directory,
-      script
+      directory
     );
     const { output: baseOutput } = await term.execSizeLimit(
+      script,
       pr.base.ref,
       null,
       buildScript,
       cleanScript,
       windowsVerbatimArguments,
-      directory,
-      script
+      directory
     );
 
     let base;
