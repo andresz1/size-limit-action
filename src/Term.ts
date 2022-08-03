@@ -6,6 +6,17 @@ const INSTALL_STEP = "install";
 const BUILD_STEP = "build";
 
 class Term {
+  /**
+   * Autodetects and gets the current package manager for the current directory, either yarn, pnpm,
+   * or npm. Default is `npm`.
+   *
+   * @param directory The current directory
+   * @returns The detected package manager in use, one of `yarn`, `pnpm`, `npm`
+   */
+  getPackageManager(directory?: string): string {
+    return hasYarn(directory) ? "yarn" : hasPNPM(directory) ? "pnpm" : "npm";
+  }
+
   async execSizeLimit(
     branch?: string,
     skipStep?: string,
@@ -13,13 +24,10 @@ class Term {
     cleanScript?: string,
     windowsVerbatimArguments?: boolean,
     directory?: string,
-    script?: string
+    script?: string,
+    packageManager?: string
   ): Promise<{ status: number; output: string }> {
-    const manager = hasYarn(directory)
-      ? "yarn"
-      : hasPNPM(directory)
-      ? "pnpm"
-      : "npm";
+    const manager = packageManager || this.getPackageManager(directory);
     let output = "";
 
     if (branch) {

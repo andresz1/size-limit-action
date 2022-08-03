@@ -98,6 +98,19 @@ with:
   directory: client/
 ```
 
+### Customizing the Package Manager
+
+By default, the action will attempt to autodetect which package manager to use, but in some cases
+like those who are using a monorepo and the directory option, this may not detect the correct
+manager. You can manually specify the package manager with the `package_manager` option.
+
+```yaml
+with:
+  github_token: ${{ secrets.GITHUB_TOKEN }}
+  directory: packages/client/
+  package_manager: yarn
+```
+
 ## Feedback
 
 Pull requests, feature ideas and bug reports are very welcome. We highly appreciate any feedback.
