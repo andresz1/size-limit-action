@@ -1,4 +1,3 @@
-// @ts-ignore
 import bytes from "bytes";
 
 interface IResult {
@@ -40,7 +39,7 @@ class SizeLimit {
     return `${Math.ceil(seconds * 1000)} ms`;
   }
 
-  private formatChange(base: number = 0, current: number = 0): string {
+  private formatChange(base = 0, current = 0): string {
     if (base === 0) {
       return "+100% 🔺";
     }
@@ -68,7 +67,7 @@ class SizeLimit {
     name: string,
     base: IResult,
     current: IResult
-  ): Array<string> {
+  ): string[] {
     return [
       name,
       this.formatLine(
@@ -82,7 +81,7 @@ class SizeLimit {
     name: string,
     base: IResult,
     current: IResult
-  ): Array<string> {
+  ): string[] {
     return [
       name,
       this.formatLine(
@@ -135,7 +134,7 @@ class SizeLimit {
   formatResults(
     base: { [name: string]: IResult },
     current: { [name: string]: IResult }
-  ): Array<Array<string>> {
+  ): string[][] {
     const names = [...new Set([...Object.keys(base), ...Object.keys(current)])];
     const isSize = names.some(
       (name: string) => current[name] && current[name].total === undefined

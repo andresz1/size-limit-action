@@ -57,7 +57,7 @@ describe("SizeLimit", () => {
       "dist/index.js": {
         name: "dist/index.js",
         size: 100894,
-        running: 0.20210999999999999,
+        running: 0.2021099999999999,
         loading: 2.5658984375,
         total: 2.7680084375000003
       }

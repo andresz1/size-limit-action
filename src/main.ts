@@ -1,6 +1,5 @@
 import { getInput, setFailed } from "@actions/core";
 import { context, GitHub } from "@actions/github";
-// @ts-ignore
 import table from "markdown-table";
 import Term from "./Term";
 import SizeLimit from "./SizeLimit";
