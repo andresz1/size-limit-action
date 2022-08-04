@@ -1,6 +1,6 @@
-name: 'size-limit-action'
+name: 'size-limit action'
 description: 'size-limit action'
-author: 'Andres Alvarez <a.alvarez.sor@gmail.com>'
+author: 'fryorcraken.eth <git@fryocraken.xyz>'
 branding:
   icon: 'activity'
   color: 'green'
