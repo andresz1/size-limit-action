@@ -29,8 +29,8 @@
     "markdown-table": "^3.0.2"
   },
   "devDependencies": {
-    "@size-limit/file": "^4.3.1",
-    "@size-limit/time": "^4.3.1",
+    "@size-limit/file": "^8.0.0",
+    "@size-limit/time": "^8.0.0",
     "@types/bytes": "^3.1.1",
     "@types/jest": "^24.0.23",
     "@types/markdown-table": "^3.0.0",
@@ -45,7 +45,7 @@
     "jest-circus": "^24.9.0",
     "js-yaml": "^3.13.1",
     "prettier": "^1.19.1",
-    "size-limit": "^4.3.1",
+    "size-limit": "^8.0.0",
     "ts-jest": "^24.2.0",
     "typescript": "^3.6.4"
   }
