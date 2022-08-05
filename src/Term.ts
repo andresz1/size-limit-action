@@ -2,10 +2,6 @@ import { exec } from "@actions/exec";
 import hasYarn from "has-yarn";
 import hasPNPM from "has-pnpm";
 
-const INSTALL_STEP = "install";
-const BUILD_STEP = "build";
-const ALL_STEPS = "all";
-
 class Term {
   async execSizeLimit(
     script: string,
