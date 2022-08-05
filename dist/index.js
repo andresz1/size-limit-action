@@ -10429,10 +10429,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const exec_1 = __nccwpck_require__(1514);
 const has_yarn_1 = __importDefault(__nccwpck_require__(3472));
 const has_pnpm_1 = __importDefault(__nccwpck_require__(3974));
-const INSTALL_STEP = "install";
-const BUILD_STEP = "build";
 class Term {
-    execSizeLimit(branch, skipStep, buildScript, cleanScript, windowsVerbatimArguments, directory, script) {
+    execSizeLimit(script, buildScript, skipInstall, skipBuild, windowsVerbatimArguments, branch, cleanScript, directory) {
         return __awaiter(this, void 0, void 0, function* () {
             const manager = (0, has_yarn_1.default)(directory)
                 ? "yarn"
@@ -10449,13 +10447,13 @@ class Term {
                 }
                 yield (0, exec_1.exec)(`git checkout -f ${branch}`);
             }
-            if (skipStep !== INSTALL_STEP && skipStep !== BUILD_STEP) {
+            if (!skipInstall) {
                 yield (0, exec_1.exec)(`${manager} install`, [], {
                     cwd: directory,
                 });
             }
-            if (skipStep !== BUILD_STEP) {
-                yield (0, exec_1.exec)(`${manager} run ${buildScript !== null && buildScript !== void 0 ? buildScript : "build"}`, [], {
+            if (!skipBuild) {
+                yield (0, exec_1.exec)(`${manager} run ${buildScript}`, [], {
                     cwd: directory,
                 });
             }
@@ -10529,17 +10527,18 @@ function run() {
                 throw new Error("No PR found. Only pull_request workflows are supported.");
             }
             const token = (0, core_1.getInput)("github_token");
-            const skipStep = (0, core_1.getInput)("skip_step");
-            const buildScript = (0, core_1.getInput)("build_script");
-            const cleanScript = (0, core_1.getInput)("clean_script");
             const script = (0, core_1.getInput)("script");
+            const buildScript = (0, core_1.getInput)("build_script");
+            const skipInstall = (0, core_1.getInput)("skip_install") === "true";
+            const skipBuild = (0, core_1.getInput)("skip_build") === "true";
+            const cleanScript = (0, core_1.getInput)("clean_script");
             const directory = (0, core_1.getInput)("directory") || process.cwd();
-            const windowsVerbatimArguments = (0, core_1.getInput)("windows_verbatim_arguments") === "true" ? true : false;
+            const windowsVerbatimArguments = (0, core_1.getInput)("windows_verbatim_arguments") === "true";
             const octokit = (0, github_1.getOctokit)(token);
             const term = new Term_1.default();
             const limit = new SizeLimit_1.default();
-            const { status, output } = yield term.execSizeLimit(null, skipStep, buildScript, cleanScript, windowsVerbatimArguments, directory, script);
-            const { output: baseOutput } = yield term.execSizeLimit(pr.base.ref, null, buildScript, cleanScript, windowsVerbatimArguments, directory, script);
+            const { status, output } = yield term.execSizeLimit(script, buildScript, skipInstall, skipBuild, windowsVerbatimArguments, null, cleanScript, directory);
+            const { output: baseOutput } = yield term.execSizeLimit(script, buildScript, skipInstall, skipBuild, windowsVerbatimArguments, pr.base.ref, cleanScript, directory);
             let base;
             let current;
             try {
