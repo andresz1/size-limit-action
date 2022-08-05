@@ -10434,32 +10434,32 @@ const BUILD_STEP = "build";
 class Term {
     execSizeLimit(branch, skipStep, buildScript, cleanScript, windowsVerbatimArguments, directory, script) {
         return __awaiter(this, void 0, void 0, function* () {
-            const manager = has_yarn_1.default(directory)
+            const manager = (0, has_yarn_1.default)(directory)
                 ? "yarn"
-                : has_pnpm_1.default(directory)
+                : (0, has_pnpm_1.default)(directory)
                     ? "pnpm"
                     : "npm";
             let output = "";
             if (branch) {
                 try {
-                    yield exec_1.exec(`git fetch origin ${branch} --depth=1`);
+                    yield (0, exec_1.exec)(`git fetch origin ${branch} --depth=1`);
                 }
                 catch (error) {
                     console.log("Fetch failed", error.message);
                 }
-                yield exec_1.exec(`git checkout -f ${branch}`);
+                yield (0, exec_1.exec)(`git checkout -f ${branch}`);
             }
             if (skipStep !== INSTALL_STEP && skipStep !== BUILD_STEP) {
-                yield exec_1.exec(`${manager} install`, [], {
+                yield (0, exec_1.exec)(`${manager} install`, [], {
                     cwd: directory
                 });
             }
             if (skipStep !== BUILD_STEP) {
-                yield exec_1.exec(`${manager} run ${buildScript !== null && buildScript !== void 0 ? buildScript : "build"}`, [], {
+                yield (0, exec_1.exec)(`${manager} run ${buildScript !== null && buildScript !== void 0 ? buildScript : "build"}`, [], {
                     cwd: directory
                 });
             }
-            const status = yield exec_1.exec(script, [], {
+            const status = yield (0, exec_1.exec)(script, [], {
                 windowsVerbatimArguments,
                 ignoreReturnCode: true,
                 listeners: {
@@ -10470,7 +10470,7 @@ class Term {
                 cwd: directory
             });
             if (cleanScript) {
-                yield exec_1.exec(`${manager} run ${cleanScript}`, [], {
+                yield (0, exec_1.exec)(`${manager} run ${cleanScript}`, [], {
                     cwd: directory
                 });
             }
@@ -10528,14 +10528,14 @@ function run() {
             if (!pr) {
                 throw new Error("No PR found. Only pull_request workflows are supported.");
             }
-            const token = core_1.getInput("github_token");
-            const skipStep = core_1.getInput("skip_step");
-            const buildScript = core_1.getInput("build_script");
-            const cleanScript = core_1.getInput("clean_script");
-            const script = core_1.getInput("script");
-            const directory = core_1.getInput("directory") || process.cwd();
-            const windowsVerbatimArguments = core_1.getInput("windows_verbatim_arguments") === "true" ? true : false;
-            const octokit = github_1.getOctokit(token);
+            const token = (0, core_1.getInput)("github_token");
+            const skipStep = (0, core_1.getInput)("skip_step");
+            const buildScript = (0, core_1.getInput)("build_script");
+            const cleanScript = (0, core_1.getInput)("clean_script");
+            const script = (0, core_1.getInput)("script");
+            const directory = (0, core_1.getInput)("directory") || process.cwd();
+            const windowsVerbatimArguments = (0, core_1.getInput)("windows_verbatim_arguments") === "true" ? true : false;
+            const octokit = (0, github_1.getOctokit)(token);
             const term = new Term_1.default();
             const limit = new SizeLimit_1.default();
             const { status, output } = yield term.execSizeLimit(null, skipStep, buildScript, cleanScript, windowsVerbatimArguments, directory, script);
@@ -10552,7 +10552,7 @@ function run() {
             }
             const body = [
                 SIZE_LIMIT_HEADING,
-                markdown_table_1.markdownTable(limit.formatResults(base, current))
+                (0, markdown_table_1.markdownTable)(limit.formatResults(base, current))
             ].join("\r\n");
             const sizeLimitComment = yield fetchPreviousComment(octokit, repo, pr);
             if (!sizeLimitComment) {
@@ -10574,11 +10574,11 @@ function run() {
                 }
             }
             if (status > 0) {
-                core_1.setFailed("Size limit has been exceeded.");
+                (0, core_1.setFailed)("Size limit has been exceeded.");
             }
         }
         catch (error) {
-            core_1.setFailed(error.message);
+            (0, core_1.setFailed)(error.message);
         }
     });
 }
