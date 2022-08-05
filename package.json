@@ -10,8 +10,8 @@
     "lint": "eslint src/**/*.ts",
     "test": "jest",
     "build": "ncc build src/main.ts -o dist",
-    "size-build": "npm run build",
-    "size": "npm run size-build && size-limit"
+    "size": "npm run build && size-limit",
+    "prepare": "husky install"
   },
   "size-limit": [
     {
@@ -41,12 +41,20 @@
     "eslint": "^8.21.0",
     "eslint-plugin-github": "^4.3.7",
     "eslint-plugin-jest": "^26.7.0",
+    "husky": "^8.0.1",
     "jest": "^28.1.3",
     "jest-circus": "^28.1.3",
     "js-yaml": "^4.1.0",
+    "lint-staged": "^13.0.3",
     "prettier": "^2.7.1",
     "size-limit": "^8.0.0",
     "ts-jest": "^28.0.7",
     "typescript": "^4.7.4"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "prettier --write",
+      "eslint --fix"
+    ]
   }
 }
