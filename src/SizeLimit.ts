@@ -1,4 +1,3 @@
-// @ts-ignore
 import bytes from "bytes";
 
 interface IResult {
@@ -14,7 +13,7 @@ const EmptyResult = {
   size: 0,
   running: 0,
   loading: 0,
-  total: 0
+  total: 0,
 };
 
 class SizeLimit {
@@ -25,7 +24,7 @@ class SizeLimit {
     "Size",
     "Loading time (3g)",
     "Running time (snapdragon)",
-    "Total time"
+    "Total time",
   ];
 
   private formatBytes(size: number): string {
@@ -40,7 +39,7 @@ class SizeLimit {
     return `${Math.ceil(seconds * 1000)} ms`;
   }
 
-  private formatChange(base: number = 0, current: number = 0): string {
+  private formatChange(base = 0, current = 0): string {
     if (base === 0) {
       return "+100% 🔺";
     }
@@ -68,13 +67,13 @@ class SizeLimit {
     name: string,
     base: IResult,
     current: IResult
-  ): Array<string> {
+  ): string[] {
     return [
       name,
       this.formatLine(
         this.formatBytes(current.size),
         this.formatChange(base.size, current.size)
-      )
+      ),
     ];
   }
 
@@ -82,7 +81,7 @@ class SizeLimit {
     name: string,
     base: IResult,
     current: IResult
-  ): Array<string> {
+  ): string[] {
     return [
       name,
       this.formatLine(
@@ -97,15 +96,15 @@ class SizeLimit {
         this.formatTime(current.running),
         this.formatChange(base.running, current.running)
       ),
-      this.formatTime(current.total)
+      this.formatTime(current.total),
     ];
   }
 
   parseResults(output: string): { [name: string]: IResult } {
-    const results = JSON.parse(output);
+    const results = JSON.parse(output) as IResult[];
 
     return results.reduce(
-      (current: { [name: string]: IResult }, result: any) => {
+      (current: { [name: string]: IResult }, result: IResult) => {
         let time = {};
 
         if (result.loading !== undefined && result.running !== undefined) {
@@ -115,7 +114,7 @@ class SizeLimit {
           time = {
             running,
             loading,
-            total: loading + running
+            total: loading + running,
           };
         }
 
@@ -124,8 +123,8 @@ class SizeLimit {
           [result.name]: {
             name: result.name,
             size: +result.size,
-            ...time
-          }
+            ...time,
+          },
         };
       },
       {}
@@ -135,7 +134,7 @@ class SizeLimit {
   formatResults(
     base: { [name: string]: IResult },
     current: { [name: string]: IResult }
-  ): Array<Array<string>> {
+  ): string[][] {
     const names = [...new Set([...Object.keys(base), ...Object.keys(current)])];
     const isSize = names.some(
       (name: string) => current[name] && current[name].total === undefined

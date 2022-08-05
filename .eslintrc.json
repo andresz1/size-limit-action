@@ -1,11 +1,11 @@
 {
-    "plugins": ["jest", "@typescript-eslint"],
-    "extends": ["plugin:github/es6"],
+    "plugins": ["github", "jest", "@typescript-eslint"],
+    "extends": ["plugin:github/internal", "plugin:github/typescript"],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
       "ecmaVersion": 9,
       "sourceType": "module",
-      "project": "./tsconfig.json"
+      "project": "./tsconfig.dev.json"
     },
     "env": {
       "node": true,
