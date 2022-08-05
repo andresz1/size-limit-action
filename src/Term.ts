@@ -36,13 +36,13 @@ class Term {
 
     if (!skipInstall) {
       await exec(`${manager} install`, [], {
-        cwd: directory
+        cwd: directory,
       });
     }
 
     if (!skipBuild) {
       await exec(`${manager} run ${buildScript}`, [], {
-        cwd: directory
+        cwd: directory,
       });
     }
 
@@ -52,20 +52,20 @@ class Term {
       listeners: {
         stdout: (data: Buffer) => {
           output += data.toString();
-        }
+        },
       },
-      cwd: directory
+      cwd: directory,
     });
 
     if (cleanScript) {
       await exec(`${manager} run ${cleanScript}`, [], {
-        cwd: directory
+        cwd: directory,
       });
     }
 
     return {
       status,
-      output
+      output,
     };
   }
 }

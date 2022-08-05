@@ -10318,7 +10318,7 @@ const EmptyResult = {
     size: 0,
     running: 0,
     loading: 0,
-    total: 0
+    total: 0,
 };
 class SizeLimit {
     formatBytes(size) {
@@ -10350,7 +10350,7 @@ class SizeLimit {
     formatSizeResult(name, base, current) {
         return [
             name,
-            this.formatLine(this.formatBytes(current.size), this.formatChange(base.size, current.size))
+            this.formatLine(this.formatBytes(current.size), this.formatChange(base.size, current.size)),
         ];
     }
     formatTimeResult(name, base, current) {
@@ -10359,7 +10359,7 @@ class SizeLimit {
             this.formatLine(this.formatBytes(current.size), this.formatChange(base.size, current.size)),
             this.formatLine(this.formatTime(current.loading), this.formatChange(base.loading, current.loading)),
             this.formatLine(this.formatTime(current.running), this.formatChange(base.running, current.running)),
-            this.formatTime(current.total)
+            this.formatTime(current.total),
         ];
     }
     parseResults(output) {
@@ -10372,7 +10372,7 @@ class SizeLimit {
                 time = {
                     running,
                     loading,
-                    total: loading + running
+                    total: loading + running,
                 };
             }
             return Object.assign(Object.assign({}, current), { [result.name]: Object.assign({ name: result.name, size: +result.size }, time) });
@@ -10401,7 +10401,7 @@ SizeLimit.TIME_RESULTS_HEADER = [
     "Size",
     "Loading time (3g)",
     "Running time (snapdragon)",
-    "Total time"
+    "Total time",
 ];
 exports["default"] = SizeLimit;
 
@@ -10451,12 +10451,12 @@ class Term {
             }
             if (skipStep !== INSTALL_STEP && skipStep !== BUILD_STEP) {
                 yield (0, exec_1.exec)(`${manager} install`, [], {
-                    cwd: directory
+                    cwd: directory,
                 });
             }
             if (skipStep !== BUILD_STEP) {
                 yield (0, exec_1.exec)(`${manager} run ${buildScript !== null && buildScript !== void 0 ? buildScript : "build"}`, [], {
-                    cwd: directory
+                    cwd: directory,
                 });
             }
             const status = yield (0, exec_1.exec)(script, [], {
@@ -10465,18 +10465,18 @@ class Term {
                 listeners: {
                     stdout: (data) => {
                         output += data.toString();
-                    }
+                    },
                 },
-                cwd: directory
+                cwd: directory,
             });
             if (cleanScript) {
                 yield (0, exec_1.exec)(`${manager} run ${cleanScript}`, [], {
-                    cwd: directory
+                    cwd: directory,
                 });
             }
             return {
                 status,
-                output
+                output,
             };
         });
     }
@@ -10515,9 +10515,9 @@ function fetchPreviousComment(octokit, repo, pr) {
         const { data: commentList } = yield octokit.rest.issues.listComments({
             owner: repo.owner,
             repo: repo.repo,
-            issue_number: pr.number
+            issue_number: pr.number,
         });
-        return commentList.find(comment => comment.body.startsWith(SIZE_LIMIT_HEADING));
+        return commentList.find((comment) => comment.body.startsWith(SIZE_LIMIT_HEADING));
     });
 }
 function run() {
@@ -10552,7 +10552,7 @@ function run() {
             }
             const body = [
                 SIZE_LIMIT_HEADING,
-                (0, markdown_table_1.markdownTable)(limit.formatResults(base, current))
+                (0, markdown_table_1.markdownTable)(limit.formatResults(base, current)),
             ].join("\r\n");
             const sizeLimitComment = yield fetchPreviousComment(octokit, repo, pr);
             if (!sizeLimitComment) {

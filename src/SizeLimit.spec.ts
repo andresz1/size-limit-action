@@ -9,8 +9,8 @@ describe("SizeLimit", () => {
         passed: true,
         size: "110894",
         running: "0.10210999999999999",
-        loading: "2.1658984375"
-      }
+        loading: "2.1658984375",
+      },
     ]);
 
     expect(limit.parseResults(output)).toEqual({
@@ -19,8 +19,8 @@ describe("SizeLimit", () => {
         loading: 2.1658984375,
         running: 0.10210999999999999,
         size: 110894,
-        total: 2.2680084375000003
-      }
+        total: 2.2680084375000003,
+      },
     });
   });
 
@@ -30,15 +30,15 @@ describe("SizeLimit", () => {
       {
         name: "dist/index.js",
         passed: true,
-        size: "110894"
-      }
+        size: "110894",
+      },
     ]);
 
     expect(limit.parseResults(output)).toEqual({
       "dist/index.js": {
         name: "dist/index.js",
-        size: 110894
-      }
+        size: 110894,
+      },
     });
   });
 
@@ -50,8 +50,8 @@ describe("SizeLimit", () => {
         size: 110894,
         running: 0.10210999999999999,
         loading: 2.1658984375,
-        total: 2.2680084375000003
-      }
+        total: 2.2680084375000003,
+      },
     };
     const current = {
       "dist/index.js": {
@@ -59,8 +59,8 @@ describe("SizeLimit", () => {
         size: 100894,
         running: 0.2021099999999999,
         loading: 2.5658984375,
-        total: 2.7680084375000003
-      }
+        total: 2.7680084375000003,
+      },
     };
 
     expect(limit.formatResults(base, current)).toEqual([
@@ -70,8 +70,8 @@ describe("SizeLimit", () => {
         "98.53 KB (-9.02% 🔽)",
         "2.6 s (+18.47% 🔺)",
         "203 ms (+97.94% 🔺)",
-        "2.8 s"
-      ]
+        "2.8 s",
+      ],
     ]);
   });
 
@@ -80,19 +80,19 @@ describe("SizeLimit", () => {
     const base = {
       "dist/index.js": {
         name: "dist/index.js",
-        size: 110894
-      }
+        size: 110894,
+      },
     };
     const current = {
       "dist/index.js": {
         name: "dist/index.js",
-        size: 100894
-      }
+        size: 100894,
+      },
     };
 
     expect(limit.formatResults(base, current)).toEqual([
       SizeLimit.SIZE_RESULTS_HEADER,
-      ["dist/index.js", "98.53 KB (-9.02% 🔽)"]
+      ["dist/index.js", "98.53 KB (-9.02% 🔽)"],
     ]);
   });
 
@@ -101,24 +101,24 @@ describe("SizeLimit", () => {
     const base = {
       "dist/index.js": {
         name: "dist/index.js",
-        size: 110894
-      }
+        size: 110894,
+      },
     };
     const current = {
       "dist/index.js": {
         name: "dist/index.js",
-        size: 100894
+        size: 100894,
       },
       "dist/new.js": {
         name: "dist/new.js",
-        size: 100894
-      }
+        size: 100894,
+      },
     };
 
     expect(limit.formatResults(base, current)).toEqual([
       SizeLimit.SIZE_RESULTS_HEADER,
       ["dist/index.js", "98.53 KB (-9.02% 🔽)"],
-      ["dist/new.js", "98.53 KB (+100% 🔺)"]
+      ["dist/new.js", "98.53 KB (+100% 🔺)"],
     ]);
   });
 
@@ -127,20 +127,20 @@ describe("SizeLimit", () => {
     const base = {
       "dist/index.js": {
         name: "dist/index.js",
-        size: 110894
-      }
+        size: 110894,
+      },
     };
     const current = {
       "dist/new.js": {
         name: "dist/new.js",
-        size: 100894
-      }
+        size: 100894,
+      },
     };
 
     expect(limit.formatResults(base, current)).toEqual([
       SizeLimit.SIZE_RESULTS_HEADER,
       ["dist/index.js", "0 B (-100% 🔽)"],
-      ["dist/new.js", "98.53 KB (+100% 🔺)"]
+      ["dist/new.js", "98.53 KB (+100% 🔺)"],
     ]);
   });
 });

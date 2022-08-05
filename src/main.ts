@@ -15,10 +15,10 @@ async function fetchPreviousComment(
   const { data: commentList } = await octokit.rest.issues.listComments({
     owner: repo.owner,
     repo: repo.repo,
-    issue_number: pr.number
+    issue_number: pr.number,
   });
 
-  return commentList.find(comment =>
+  return commentList.find((comment) =>
     comment.body.startsWith(SIZE_LIMIT_HEADING)
   );
 }
@@ -83,7 +83,7 @@ async function run() {
 
     const body = [
       SIZE_LIMIT_HEADING,
-      markdownTable(limit.formatResults(base, current))
+      markdownTable(limit.formatResults(base, current)),
     ].join("\r\n");
 
     const sizeLimitComment = await fetchPreviousComment(octokit, repo, pr);
@@ -93,7 +93,7 @@ async function run() {
         await octokit.rest.issues.createComment({
           ...repo,
           issue_number: pr.number,
-          body
+          body,
         });
       } catch (error) {
         console.log(
@@ -106,7 +106,7 @@ async function run() {
           ...repo,
           // eslint-disable-next-line camelcase
           comment_id: sizeLimitComment.id,
-          body
+          body,
         });
       } catch (error) {
         console.log(

@@ -13,7 +13,7 @@ const EmptyResult = {
   size: 0,
   running: 0,
   loading: 0,
-  total: 0
+  total: 0,
 };
 
 class SizeLimit {
@@ -24,7 +24,7 @@ class SizeLimit {
     "Size",
     "Loading time (3g)",
     "Running time (snapdragon)",
-    "Total time"
+    "Total time",
   ];
 
   private formatBytes(size: number): string {
@@ -73,7 +73,7 @@ class SizeLimit {
       this.formatLine(
         this.formatBytes(current.size),
         this.formatChange(base.size, current.size)
-      )
+      ),
     ];
   }
 
@@ -96,7 +96,7 @@ class SizeLimit {
         this.formatTime(current.running),
         this.formatChange(base.running, current.running)
       ),
-      this.formatTime(current.total)
+      this.formatTime(current.total),
     ];
   }
 
@@ -114,7 +114,7 @@ class SizeLimit {
           time = {
             running,
             loading,
-            total: loading + running
+            total: loading + running,
           };
         }
 
@@ -123,8 +123,8 @@ class SizeLimit {
           [result.name]: {
             name: result.name,
             size: +result.size,
-            ...time
-          }
+            ...time,
+          },
         };
       },
       {}
