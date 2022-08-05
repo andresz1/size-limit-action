@@ -1,30 +1,26 @@
 import { getInput, setFailed } from "@actions/core";
-import { context, GitHub } from "@actions/github";
-import table from "markdown-table";
+import { context, getOctokit } from "@actions/github";
+import { GitHub } from "@actions/github/lib/utils.js";
+import { markdownTable } from "markdown-table";
 import Term from "./Term";
 import SizeLimit from "./SizeLimit";
 
 const SIZE_LIMIT_HEADING = `## size-limit report 📦 `;
 
 async function fetchPreviousComment(
-  octokit: GitHub,
+  octokit: InstanceType<typeof GitHub>,
   repo: { owner: string; repo: string },
   pr: { number: number }
 ) {
-  // TODO: replace with octokit.issues.listComments when upgraded to v17
-  const commentList = await octokit.paginate(
-    "GET /repos/:owner/:repo/issues/:issue_number/comments",
-    {
-      ...repo,
-      // eslint-disable-next-line camelcase
-      issue_number: pr.number
-    }
-  );
+  const { data: commentList } = await octokit.rest.issues.listComments({
+    owner: repo.owner,
+    repo: repo.repo,
+    issue_number: pr.number
+  });
 
-  const sizeLimitComment = commentList.find(comment =>
+  return commentList.find(comment =>
     comment.body.startsWith(SIZE_LIMIT_HEADING)
   );
-  return !sizeLimitComment ? null : sizeLimitComment;
 }
 
 async function run() {
@@ -47,7 +43,7 @@ async function run() {
     const directory = getInput("directory") || process.cwd();
     const windowsVerbatimArguments =
       getInput("windows_verbatim_arguments") === "true";
-    const octokit = new GitHub(token);
+    const octokit = getOctokit(token);
     const term = new Term();
     const limit = new SizeLimit();
 
@@ -87,16 +83,15 @@ async function run() {
 
     const body = [
       SIZE_LIMIT_HEADING,
-      table(limit.formatResults(base, current))
+      markdownTable(limit.formatResults(base, current))
     ].join("\r\n");
 
     const sizeLimitComment = await fetchPreviousComment(octokit, repo, pr);
 
     if (!sizeLimitComment) {
       try {
-        await octokit.issues.createComment({
+        await octokit.rest.issues.createComment({
           ...repo,
-          // eslint-disable-next-line camelcase
           issue_number: pr.number,
           body
         });
@@ -107,7 +102,7 @@ async function run() {
       }
     } else {
       try {
-        await octokit.issues.updateComment({
+        await octokit.rest.issues.updateComment({
           ...repo,
           // eslint-disable-next-line camelcase
           comment_id: sizeLimitComment.id,
