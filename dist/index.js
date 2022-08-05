@@ -10515,7 +10515,7 @@ function fetchPreviousComment(octokit, repo, pr) {
         const { data: commentList } = yield octokit.rest.issues.listComments({
             owner: repo.owner,
             repo: repo.repo,
-            issue_number: pr.number,
+            issue_number: pr.number
         });
         return commentList.find(comment => comment.body.startsWith(SIZE_LIMIT_HEADING));
     });
