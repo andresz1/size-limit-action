@@ -19,15 +19,19 @@ This action uses [Size Limit](https://github.com/ai/size-limit) (performance bud
 </p>
 
 ## Usage
+
 1. Install Size Limit choosing the scenario that fits you better ([JS Application](https://github.com/ai/size-limit#js-applications), [Big Libraries](https://github.com/ai/size-limit#big-libraries) or [Small Libraries](https://github.com/ai/size-limit#small-libraries)).
 2. By default this action will try to build your PR by running `build` [npm script](https://docs.npmjs.com/misc/scripts) located in your `package.json`. If something need to be done after dependencies are installed but before building `postinstall` npm script could be used. For example, using [lerna](https://github.com/lerna/lerna):
+
 ```json
 "scripts": {
   "postinstall": "lerna bootstrap",
   "build": "lerna run build"
 },
 ```
+
 3. Define Size limit configuration. For example (inside `package.json`):
+
 ```json
 "size-limit": [
   {
@@ -36,7 +40,9 @@ This action uses [Size Limit](https://github.com/ai/size-limit) (performance bud
   }
 ]
 ```
+
 4. Add the following action inside `.github/workflows/size-limit.yml`
+
 ```yaml
 name: "size"
 on:
@@ -54,6 +60,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
+
 You can optionally specify a custom npm script to run instead of the default `build` adding a `build_script` option to the yml workflow shown above. Additionally, providing a `skip_step` option will tell the action to skip either the `install` or `build` phase.
 
 ```yaml
@@ -109,6 +116,16 @@ with:
   github_token: ${{ secrets.GITHUB_TOKEN }}
   directory: packages/client/
   package_manager: yarn
+```
+
+### Creating PR comment for each run
+
+By default, if the action is run multiple times, it will update the same comment. If you want to create a new comment for each run, you can set the `create_comment_for_each_run` option to `true`.
+
+```yaml
+with:
+  github_token: ${{ secrets.GITHUB_TOKEN }}
+  create_comment_for_each_run: true
 ```
 
 ## Feedback
