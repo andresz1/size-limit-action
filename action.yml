@@ -31,6 +31,9 @@ inputs:
   package_manager:
     required: false
     description: "The package manager used to run the build and install commands. If not provided, the manager will be auto detected. Example values: `yarn`, `npm`, `pnpm`."
+  create_comment_for_each_run:
+    required: false
+    description: "If true, create a new comment for each run. If false (default), the action will update the previous comment."
 runs:
   using: 'node12'
   main: 'dist/index.js'
