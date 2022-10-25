@@ -111,6 +111,16 @@ with:
   package_manager: yarn
 ```
 
+### Creating PR comment for each run
+
+By default, if the action is run multiple times, it will update the same comment. If you want to create a new comment for each run, you can set the `create_comment_for_each_run` option to `true`.
+
+```yaml
+with:
+  github_token: ${{ secrets.GITHUB_TOKEN }}
+  create_comment_for_each_run: true
+```
+
 ## Feedback
 
 Pull requests, feature ideas and bug reports are very welcome. We highly appreciate any feedback.
