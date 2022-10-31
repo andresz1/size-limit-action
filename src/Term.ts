@@ -3,21 +3,29 @@ import hasYarn from "has-yarn";
 import hasPNPM from "has-pnpm";
 
 class Term {
+  /**
+   * Autodetects and gets the current package manager for the current directory, either yarn, pnpm,
+   * or npm. Default is `npm`.
+   *
+   * @param directory The current directory
+   * @returns The detected package manager in use, one of `yarn`, `pnpm`, `npm`
+   */
+  getPackageManager(directory?: string): string {
+    return hasYarn(directory) ? "yarn" : hasPNPM(directory) ? "pnpm" : "npm";
+  }
+
   async execSizeLimit(
     script: string,
     buildScript: string,
     skipInstall: boolean,
     skipBuild: boolean,
-    windowsVerbatimArguments: boolean,
+    windowsVerbatimArguments?: boolean,
     branch?: string,
     cleanScript?: string,
-    directory?: string
+    directory?: string,
+    packageManager?: string
   ): Promise<{ status: number; output: string }> {
-    const manager = hasYarn(directory)
-      ? "yarn"
-      : hasPNPM(directory)
-      ? "pnpm"
-      : "npm";
+    const manager = packageManager || this.getPackageManager(directory);
     let output = "";
 
     if (branch) {
