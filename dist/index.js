@@ -10430,13 +10430,19 @@ const exec_1 = __nccwpck_require__(1514);
 const has_yarn_1 = __importDefault(__nccwpck_require__(3472));
 const has_pnpm_1 = __importDefault(__nccwpck_require__(3974));
 class Term {
-    execSizeLimit(script, buildScript, skipInstall, skipBuild, windowsVerbatimArguments, branch, cleanScript, directory) {
+    /**
+     * Autodetects and gets the current package manager for the current directory, either yarn, pnpm,
+     * or npm. Default is `npm`.
+     *
+     * @param directory The current directory
+     * @returns The detected package manager in use, one of `yarn`, `pnpm`, `npm`
+     */
+    getPackageManager(directory) {
+        return (0, has_yarn_1.default)(directory) ? "yarn" : (0, has_pnpm_1.default)(directory) ? "pnpm" : "npm";
+    }
+    execSizeLimit(script, buildScript, skipInstall, skipBuild, windowsVerbatimArguments, branch, cleanScript, directory, packageManager) {
         return __awaiter(this, void 0, void 0, function* () {
-            const manager = (0, has_yarn_1.default)(directory)
-                ? "yarn"
-                : (0, has_pnpm_1.default)(directory)
-                    ? "pnpm"
-                    : "npm";
+            const manager = packageManager || this.getPackageManager(directory);
             let output = "";
             if (branch) {
                 try {
@@ -10534,11 +10540,12 @@ function run() {
             const cleanScript = (0, core_1.getInput)("clean_script");
             const directory = (0, core_1.getInput)("directory") || process.cwd();
             const windowsVerbatimArguments = (0, core_1.getInput)("windows_verbatim_arguments") === "true";
+            const packageManager = (0, core_1.getInput)("package_manager");
             const octokit = (0, github_1.getOctokit)(token);
             const term = new Term_1.default();
             const limit = new SizeLimit_1.default();
-            const { status, output } = yield term.execSizeLimit(script, buildScript, skipInstall, skipBuild, windowsVerbatimArguments, null, cleanScript, directory);
-            const { output: baseOutput } = yield term.execSizeLimit(script, buildScript, skipInstall, skipBuild, windowsVerbatimArguments, pr.base.ref, cleanScript, directory);
+            const { status, output } = yield term.execSizeLimit(script, buildScript, skipInstall, skipBuild, windowsVerbatimArguments, null, cleanScript, directory, packageManager);
+            const { output: baseOutput } = yield term.execSizeLimit(script, buildScript, skipInstall, skipBuild, windowsVerbatimArguments, pr.base.ref, cleanScript, directory, packageManager);
             let base;
             let current;
             try {

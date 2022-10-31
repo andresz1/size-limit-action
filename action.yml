@@ -34,6 +34,9 @@ inputs:
     required: false
     default: "npx size-limit --json"
     description: "The script used to generate size-limit results"
+  package_manager:
+    required: false
+    description: "The package manager used to run the build and install commands. If not provided, the manager will be auto detected. Example values: `yarn`, `npm`, `pnpm`."
 runs:
   using: 'node16'
   main: 'dist/index.js'

@@ -43,6 +43,8 @@ async function run() {
     const directory = getInput("directory") || process.cwd();
     const windowsVerbatimArguments =
       getInput("windows_verbatim_arguments") === "true";
+    const packageManager = getInput("package_manager");
+
     const octokit = getOctokit(token);
     const term = new Term();
     const limit = new SizeLimit();
@@ -55,7 +57,8 @@ async function run() {
       windowsVerbatimArguments,
       null,
       cleanScript,
-      directory
+      directory,
+      packageManager
     );
     const { output: baseOutput } = await term.execSizeLimit(
       script,
@@ -65,7 +68,8 @@ async function run() {
       windowsVerbatimArguments,
       pr.base.ref,
       cleanScript,
-      directory
+      directory,
+      packageManager
     );
 
     let base;
