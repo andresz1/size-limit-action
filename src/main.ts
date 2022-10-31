@@ -77,10 +77,18 @@ async function run() {
 
     try {
       base = limit.parseResults(baseOutput);
+    } catch (error) {
+      console.log(
+        "Error parsing size-limit output of base branch. The output should be a json."
+      );
+      throw error;
+    }
+
+    try {
       current = limit.parseResults(output);
     } catch (error) {
       console.log(
-        "Error parsing size-limit output. The output should be a json."
+        "Error parsing size-limit output of current branch. The output should be a json."
       );
       throw error;
     }
