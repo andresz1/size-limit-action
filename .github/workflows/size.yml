@@ -4,7 +4,7 @@ on:
     branches:
       - master
 jobs:
-  size:
+  size_hoge:
     runs-on: ubuntu-latest
     env:
       CI_JOB_NUMBER: 1
@@ -15,3 +15,16 @@ jobs:
       - uses: ./
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          comment_key: "hoge"
+  size_fuga:
+    runs-on: ubuntu-latest
+    env:
+      CI_JOB_NUMBER: 1
+    steps:
+      - uses: actions/checkout@v1
+      - run: |
+          git fetch --no-tags --prune --depth=1 origin +refs/heads/*:refs/remotes/origin/*
+      - uses: ./
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          comment_key: "fuga"
