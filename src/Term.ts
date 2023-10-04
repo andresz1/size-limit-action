@@ -2,19 +2,27 @@ import { exec } from "@actions/exec";
 import hasYarn from "has-yarn";
 import hasPNPM from "has-pnpm";
 
+import process from 'node:process';
+import path from 'node:path';
+import fs from 'node:fs';
+
+function hasBun(cwd = process.cwd()) {
+	return fs.existsSync(path.resolve(cwd, 'bun.lockb'));
+}
+
 const INSTALL_STEP = "install";
 const BUILD_STEP = "build";
 
 class Term {
   /**
-   * Autodetects and gets the current package manager for the current directory, either yarn, pnpm,
+   * Autodetects and gets the current package manager for the current directory, either yarn, pnpm, bun,
    * or npm. Default is `npm`.
    *
    * @param directory The current directory
-   * @returns The detected package manager in use, one of `yarn`, `pnpm`, `npm`
+   * @returns The detected package manager in use, one of `yarn`, `pnpm`, `npm`, `bun`
    */
   getPackageManager(directory?: string): string {
-    return hasYarn(directory) ? "yarn" : hasPNPM(directory) ? "pnpm" : "npm";
+    return hasYarn(directory) ? "yarn" : hasPNPM(directory) ? "pnpm" : hasBun(directory) ? "bun" : "npm";
   }
 
   async execSizeLimit(
