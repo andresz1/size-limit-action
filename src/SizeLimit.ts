@@ -42,7 +42,7 @@ class SizeLimit {
 
   private formatChange(base: number = 0, current: number = 0): string {
     if (base === 0) {
-      return "+100% 🔺";
+      return current === 0 ? "0%" : "+∞% 🔺";
     }
 
     const value = ((current - base) / base) * 100;
