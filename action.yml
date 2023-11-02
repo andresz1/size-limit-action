@@ -6,8 +6,9 @@ branding:
   color: 'green'
 inputs:
   github_token:
-    required: true
+    required: false
     description: 'a github access token'
+    default: ${{ github.token }}
   build_script:
     required: false
     description: 'a custom npm script to build'
