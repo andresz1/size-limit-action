@@ -43,6 +43,8 @@ on:
   pull_request:
     branches:
       - master
+permissions:
+  pull-requests: write
 jobs:
   size:
     runs-on: ubuntu-latest
