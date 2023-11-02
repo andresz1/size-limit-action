@@ -30,7 +30,7 @@ inputs:
     description: "The script used to generate size-limit results"
   package_manager:
     required: false
-    description: "The package manager used to run the build and install commands. If not provided, the manager will be auto detected. Example values: `yarn`, `npm`, `pnpm`."
+    description: "The package manager used to run the build and install commands. If not provided, the manager will be auto detected. Example values: `yarn`, `npm`, `pnpm`, `bun`."
 runs:
   using: 'node20'
   main: 'dist/index.js'
