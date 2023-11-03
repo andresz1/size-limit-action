@@ -2,9 +2,9 @@ import { exec } from "@actions/exec";
 import hasYarn from "has-yarn";
 import hasPNPM from "has-pnpm";
 
-import process from 'node:process';
-import path from 'node:path';
-import fs from 'node:fs';
+import process from 'process';
+import path from 'path';
+import fs from 'fs';
 
 function hasBun(cwd = process.cwd()) {
 	return fs.existsSync(path.resolve(cwd, 'bun.lockb'));
