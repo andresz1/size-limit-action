@@ -1,6 +1,6 @@
 {
   "name": "size-limit-action",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "private": true,
   "description": "size-limit action",
   "main": "dist/index.js",
